@@ -21,10 +21,11 @@ app.set('view engine', 'handlebars');
 var options = { dotfiles: 'ignore', etag: false, extensions: ['htm', 'html'], index: false };
 
 var searchResultsServer = "";
+var searchResultsChannelServer = "";
 
 app.get('/', (req, res) => {
   console.log(searchResultsServer);
-  res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer });
+  res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, searchResultsChannelClient: searchResultsChannelServer });
 });
 
 app.get('/public/:file', (req, res) => {
@@ -41,14 +42,16 @@ app.get('/public/:file', (req, res) => {
 app.post('/search', (req, res) => {
   var query = req.body.YTSearchBar;
   searchResultsServer = "";
-
-  if(query == null) { return; }
+  if(query == null || query == "") { res.redirect('back'); return; }
 
   fs.createReadStream('./archive/USVideos.csv')
     .pipe(csv())
     .on('data', (row) => {
       if(toLower(row.title).includes(toLower(query))) {
         searchResultsServer += ('<div>' + row.title + ' / ' + row.trending_date + '</div>');
+      }
+      if(toLower(row.channel_title).includes(toLower(query))) {
+        searchResultsChannelServer += ('<div>' + row.channel_title + ' / ' + row.trending_date + ' / ' + row.likes + '</div>');
       }
     })
     .on('end', () => {
