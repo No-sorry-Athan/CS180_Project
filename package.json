@@ -22,6 +22,7 @@
   "dependencies": {
     "csv-parser": "^3.0.0",
     "d3": "^7.4.3",
+    "express-handlebars": "^6.0.5",
     "lodash": "^4.17.21"
   }
 }
