@@ -48,7 +48,12 @@ app.post('/search', (req, res) => {
     .pipe(csv())
     .on('data', (row) => {
       if(toLower(row.title).includes(toLower(query))) {
-        searchResultsServer += ('<div>' + row.title + ' / ' + row.trending_date + '</div>');
+        searchResultsServer += '<div class=\'video\'>'; 
+        searchResultsServer += '<img src=\'' + row.thumbnail_link + '\' alt=\'Video Thumbnail\'>'; 
+        searchResultsServer += '<div class=\'videoContent\'>';
+        searchResultsServer += '<p class=\'videoTitle\'>' + row.title + '</p>'; 
+        searchResultsServer += '<p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>'; 
+        searchResultsServer += '</div></div>\n';
       }
       if(toLower(row.channel_title).includes(toLower(query))) {
         searchResultsChannelServer += ('<div>' + row.channel_title + ' / ' + row.trending_date + ' / ' + row.likes + '</div>');
