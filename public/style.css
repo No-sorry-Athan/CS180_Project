@@ -1,3 +1,11 @@
 #searchBar {
     width: 50%;
 }
+
+.loadingIndicator {
+    width: fit-content;
+    padding: 3px;
+    margin: 10px 0px;
+
+    display: none;
+}

@@ -2,7 +2,8 @@
 <div>
     <form action="/search" method="POST">
         <input type="text" name="YTSearchBar" placeholder="Search Youtube Dataset">
-        <input type="submit" name="searchDS" value="Search" />
+        <input type="submit" class='searchBtn' name="searchDS" value="Search" />
+        <div class="loadingIndicator">Loading Results ...</div>
     </form>
 </div>
 <h2> Title / Trending Date </h2>
@@ -13,10 +14,7 @@
 <script>
     $(function() {
         $('.searchBtn').click(() => {
-            console.log($('.searchBar').text);
+            $('.loadingIndicator').show();
         })
     })
-    function datasetSearch() {
-
-    }
 </script>
