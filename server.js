@@ -10,6 +10,9 @@ const csv = require('csv-parser');
 
 const { toLower } = require('lodash');
 
+const axios = require('axios');
+const { triggerAsyncId } = require('async_hooks');
+
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(express.static(path.join(__dirname, 'public') , options ));
@@ -25,7 +28,7 @@ var searchResultsChannelServer = "";
 
 app.get('/', (req, res) => {
   console.log(searchResultsServer);
-  res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, searchResultsChannelClient: searchResultsChannelServer });
+  res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, searchResultsChannelClient: searchResultsChannelServer});
 });
 
 app.get('/public/:file', (req, res) => {
@@ -63,5 +66,78 @@ app.post('/search', (req, res) => {
       res.redirect('back');
     });
 });
+
+app.post('/temp', (req, res) => {
+  // console.log("temp");
+  var videoLink = req.body.YTAddLink;
+  var insertCsv = []
+  var videoId = ''
+  axios.get('https://youtube.googleapis.com/youtube/v3/search?part=snippet' +
+  '&q=' + videoLink + '&key=AIzaSyAISwumhA0ntL8uS8i_unKuCVjUCpFp9P4')
+  .then(res => {
+    // console.log(res)
+    // console.log(res.data.items)
+    videoInfoJson = res.data.items[0]
+    // console.log(videoInfoJson)
+    videoId = videoInfoJson.id.videoId;
+
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear().toString().substring(2,4)
+
+    today = yyyy + '.' + dd + '.' + mm;
+
+    insertCsv[0] = videoId;
+    insertCsv[1] = today;
+    insertCsv[2] = videoInfoJson.snippet.title;
+    insertCsv[3] = videoInfoJson.snippet.channelTitle;
+    insertCsv[5] = videoInfoJson.snippet.publishedAt;
+    insertCsv[11] = videoInfoJson.snippet.thumbnails.default.url
+    // placeholder
+    insertCsv[12]= "FALSE"
+    insertCsv[13]= "FALSE"
+    insertCsv[14]= "FALSE"
+
+    // console.log(insertCsv);
+    axios.get('https://youtube.googleapis.com/youtube/v3/videos?part=snippet' +
+    '&id=' + videoId + '&key=AIzaSyAISwumhA0ntL8uS8i_unKuCVjUCpFp9P4')
+    .then(res => {
+      videoInfoJson = res.data.items[0]
+      // console.log(videoInfoJson)
+      insertCsv[4] = videoInfoJson.snippet.categoryId;
+      insertCsv[6] = videoInfoJson.snippet.tags;
+      insertCsv[15] = videoInfoJson.snippet.description;
+
+      axios.get('https://www.googleapis.com/youtube/v3/videos?part=statistics' +
+      '&id=' + videoId + '&key=AIzaSyAISwumhA0ntL8uS8i_unKuCVjUCpFp9P4')
+      .then(res => {
+        videoInfoJson = res.data.items[0].statistics
+        // console.log(videoInfoJson)
+        insertCsv[7] = videoInfoJson.viewCount;
+        insertCsv[8] = videoInfoJson.likeCount;
+        // in a recent update, YouTube got rid of dislike counters
+        // making this field irrelevant
+        insertCsv[9] = -1;
+        insertCsv[10]= videoInfoJson.commentCount;
+      
+
+        // insert into csv here
+        console.log(insertCsv);
+      })
+      .catch(error => {
+        console.error(error)
+      })
+    })
+    .catch(error => {
+      console.error(error)
+    })
+  })
+  .catch(error => {
+    console.error(error)
+  })
+  res.redirect('back');
+
+})
 
 app.listen(port, () => console.log('Test listening on port ${' + port + '}!'));
