@@ -11,7 +11,6 @@ const csv = require('csv-parser');
 const { toLower } = require('lodash');
 
 const axios = require('axios');
-const { triggerAsyncId } = require('async_hooks');
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -67,17 +66,19 @@ app.post('/search', (req, res) => {
     });
 });
 
+api_key = 'AIzaSyAUxYRuyvyKROxYDBnOye1DlBL0evOufTE'
+
 app.post('/temp', (req, res) => {
   // console.log("temp");
   var videoLink = req.body.YTAddLink;
   var insertCsv = []
   var videoId = ''
   axios.get('https://youtube.googleapis.com/youtube/v3/search?part=snippet' +
-  '&q=' + videoLink + '&key=AIzaSyAISwumhA0ntL8uS8i_unKuCVjUCpFp9P4')
+  '&q=' + videoLink + '&key=' + api_key)
   .then(res => {
     // console.log(res)
     // console.log(res.data.items)
-    videoInfoJson = res.data.items[0]
+    videoInfoJson = res.data.items[0];
     // console.log(videoInfoJson)
     videoId = videoInfoJson.id.videoId;
 
@@ -99,20 +100,19 @@ app.post('/temp', (req, res) => {
     insertCsv[13]= "FALSE"
     insertCsv[14]= "FALSE"
 
-    // console.log(insertCsv);
     axios.get('https://youtube.googleapis.com/youtube/v3/videos?part=snippet' +
-    '&id=' + videoId + '&key=AIzaSyAISwumhA0ntL8uS8i_unKuCVjUCpFp9P4')
+    '&id=' + videoId + '&key=' + api_key)
     .then(res => {
-      videoInfoJson = res.data.items[0]
+      videoInfoJson = res.data.items[0];
       // console.log(videoInfoJson)
       insertCsv[4] = videoInfoJson.snippet.categoryId;
       insertCsv[6] = videoInfoJson.snippet.tags;
       insertCsv[15] = videoInfoJson.snippet.description;
 
       axios.get('https://www.googleapis.com/youtube/v3/videos?part=statistics' +
-      '&id=' + videoId + '&key=AIzaSyAISwumhA0ntL8uS8i_unKuCVjUCpFp9P4')
+      '&id=' + videoId + '&key=' + api_key)
       .then(res => {
-        videoInfoJson = res.data.items[0].statistics
+        videoInfoJson = res.data.items[0].statistics;
         // console.log(videoInfoJson)
         insertCsv[7] = videoInfoJson.viewCount;
         insertCsv[8] = videoInfoJson.likeCount;
@@ -123,6 +123,37 @@ app.post('/temp', (req, res) => {
       
 
         // insert into csv here
+        csvString = '';
+        for ( i = 0; i < insertCsv.length; i++){
+          currentVal = insertCsv[i]
+          if (currentVal == undefined)
+            break;
+          type = typeof(currentVal)
+
+          if (type == typeof("")){
+              csvString += currentVal;
+          }
+          else if (type == typeof(1)){
+              csvString += currentVal.toString();
+          }
+          else if(type == typeof([])){
+              for (j = 0; j < currentVal.length; j++){
+                currentTag = currentVal[j];
+                if (currentTag == undefined)
+                  break;
+                csvString += "\"" + currentTag +  "\"" + "|"
+              }
+              csvString = csvString.substring(0, csvString.length - 1);
+              
+          }
+          csvString += ",";
+        }
+        csvString = csvString.substring(0, csvString.length - 1);
+        csvString += "\r\n";
+
+        console.log(csvString);
+        
+        
         console.log(insertCsv);
       })
       .catch(error => {
