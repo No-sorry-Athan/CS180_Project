@@ -100,30 +100,22 @@ app.post('/temp', (req, res) => {
     insertCsv[13]= "FALSE"
     insertCsv[14]= "FALSE"
 
-    axios.get('https://youtube.googleapis.com/youtube/v3/videos?part=snippet' +
+    axios.get('https://youtube.googleapis.com/youtube/v3/videos?part=snippet,statistics' +
     '&id=' + videoId + '&key=' + api_key)
     .then(res => {
       videoInfoJson = res.data.items[0];
       // console.log(videoInfoJson)
       insertCsv[4] = videoInfoJson.snippet.categoryId;
+
       insertCsv[6] = videoInfoJson.snippet.tags;
+      insertCsv[7] = videoInfoJson.statistics.viewCount;
+      insertCsv[8] = videoInfoJson.statistics.likeCount;
+      insertCsv[9] = -1;
+      insertCsv[10]= videoInfoJson.statistics.commentCount;
+
       insertCsv[15] = videoInfoJson.snippet.description;
 
-      axios.get('https://www.googleapis.com/youtube/v3/videos?part=statistics' +
-      '&id=' + videoId + '&key=' + api_key)
-      .then(res => {
-        videoInfoJson = res.data.items[0].statistics;
-        // console.log(videoInfoJson)
-        insertCsv[7] = videoInfoJson.viewCount;
-        insertCsv[8] = videoInfoJson.likeCount;
-        // in a recent update, YouTube got rid of dislike counters
-        // making this field irrelevant
-        insertCsv[9] = -1;
-        insertCsv[10]= videoInfoJson.commentCount;
-      
-
-        // insert into csv here
-        csvString = '';
+      csvString = '';
         for ( i = 0; i < insertCsv.length; i++){
           currentVal = insertCsv[i]
           if (currentVal == undefined)
@@ -155,10 +147,6 @@ app.post('/temp', (req, res) => {
         
         
         console.log(insertCsv);
-      })
-      .catch(error => {
-        console.error(error)
-      })
     })
     .catch(error => {
       console.error(error)
