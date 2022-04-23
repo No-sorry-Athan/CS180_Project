@@ -53,7 +53,16 @@ app.post('/search', (req, res) => {
         searchResultsServer += '<div class=\'videoContent\'>';
         searchResultsServer += '<p class=\'videoTitle\'>' + row.title + '</p>'; 
         searchResultsServer += '<p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>'; 
+        searchResultsServer += '<p class=\'description\'>' + row.description + '</p>';
         searchResultsServer += '</div></div>\n';
+        //'<p class=\'videoId\'>' + row.category_id + '</p>'; 
+        //'<p class=\'publish_time\'>' + row.publish_time + '</p>';
+        //'<p class=\'videoTags\'>' + row.tags + '</p>';   
+        //'<p class=\'views\'>' + row.views + '</p>';
+        //'<p class=\'likes\'>' + row.likes + '</p>';
+        //'<p class=\'dislikes\'>' + row.dislikes + '</p>';   
+        //'<p class=\'comment_count\'>' + row.comment_count + '</p>';   
+        //'<p class=\'description\'>' + row.description + '</p>';
       }
       if(toLower(row.channel_title).includes(toLower(query))) {
         searchResultsChannelServer += ('<div>' + row.channel_title + ' / ' + row.trending_date + ' / ' + row.likes + '</div>');
