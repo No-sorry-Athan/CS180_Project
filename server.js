@@ -123,7 +123,7 @@ app.post('/temp', (req, res) => {
           type = typeof(currentVal)
 
           if (type == typeof("")){
-              csvString += currentVal;
+            csvString += "\"" + currentVal.replaceAll('\n', '\\n') + "\"";
           }
           else if (type == typeof(1)){
               csvString += currentVal.toString();
@@ -136,7 +136,6 @@ app.post('/temp', (req, res) => {
                 csvString += "\"" + currentTag +  "\"" + "|"
               }
               csvString = csvString.substring(0, csvString.length - 1);
-              
           }
           csvString += ",";
         }
@@ -146,6 +145,9 @@ app.post('/temp', (req, res) => {
         console.log(csvString);
         
         
+        fs.writeFile('./archive/USVideos.csv', csvString, { flag: 'a+' }, (err) => {
+          if (err) throw err;
+        })
         console.log(insertCsv);
     })
     .catch(error => {
