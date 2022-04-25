@@ -23,10 +23,9 @@ var options = { dotfiles: 'ignore', etag: false, extensions: ['htm', 'html'], in
 var searchResultsServer = "";
 var searchResultsChannelServer = "";
 var csvCacheServer = [];
-var editVideo;
 
 app.get('/', (req, res) => {
-  res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, searchResultsChannelClient: searchResultsChannelServer, csvCacheClient: csvCacheServer, video: editVideo });
+  res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, searchResultsChannelClient: searchResultsChannelServer, csvCacheClient: JSON.stringify(csvCacheServer) });
 });
 
 app.get('/public/:file', (req, res) => {
@@ -57,11 +56,8 @@ app.post('/search', (req, res) => {
         searchResultsServer += '<div class=\'videoContent\'>';
         searchResultsServer += '<p class=\'videoTitle\'>' + row.title + '</p>'; 
         searchResultsServer += '<div style="display: flex"><p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>'; 
-        searchResultsServer += '<form action="/populateVideoEditor" method="GET">';
-        searchResultsServer += '<input type="input" name="index" value="' + i + '" style="display: none">';
-        searchResultsServer += '<input type="submit" class="editBtn" name="' + i + '" value="Edit">';
-        searchResultsServer += '</form></div>';
-        searchResultsServer += '</div></div>\n';
+        searchResultsServer += '<button type="submit" class="editBtn" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
+        searchResultsServer += '</div></div></div>\n';
         i++;
       }
       if(toLower(row.channel_title).includes(toLower(query))) {
@@ -69,18 +65,35 @@ app.post('/search', (req, res) => {
       }
     })
     .on('end', () => {
-      //console.log(csvCacheServer);
       res.redirect('back');
     });
 });
 
-app.get('/populateVideoEditor', (req, res) => {
-  editVideo = csvCacheServer[req.query.index];
-  res.redirect('back');
-});
-
 app.post('/editVideo', (req, res) => {
   // update video through csv
+  let index = req.body.editIndex;
+
+  let newCSV = "video_id,trending_date,title,channel_title,category_id,publish_time,tags,views,likes,dislikes,comment_count,thumbnail_link,comments_disabled,ratings_disabled,video_error_or_removed,description\n";
+  fs.createReadStream('./archive/USVideos.csv')
+    .pipe(csv())
+    .on('data', (row) => {
+      if (row.trending_date == csvCacheServer[index].trending_date && row.title == csvCacheServer[index].title){ //if this is the vid we want to delete, don't add it to the string
+          //do nothing
+          console.log(row);
+          console.log(typeof(row));
+      } else { //store all other row like a normal CSV
+        newCSV += row.video_id + ',' + row.trending_date + ',' + '"' + row.title + '"' + ',' + '"' + row.channel_title + '"' + ',' + row.category_id + ',' + row.publish_time + ',' + '"' + row.tags + '"' + ',' + row.views + ',' + row.likes + ',' + row.dislikes + ',' + row.comment_count + ',' + row.thumbnail_link + ',' + row.comments_disabled + ',' + row.ratings_disabled + ',' + row.video_error_or_removed + ',' + '"' + row.description + '"' + '\r\n';
+      }
+    })
+    .on('end', () => {
+      fs.writeFileSync('./archive/USVideos.csv', newCSV);
+    });
+  
+  let appendString = req.body.video_id + ',' + req.body.trending_date + ',' + '"' + req.body.title + '"' + ',' + '"' + req.body.channel_title + '"' + ',' + req.body.category_id + ',' + req.body.publish_time + ',' + '"' + req.body.tags + '"' + ',' + req.body.views + ',' + req.body.likes + ',' + req.body.dislikes + ',' + req.body.comment_count + ',' + req.body.thumbnail_link + ',' + req.body.comments_disabled + ',' + req.body.ratings_disabled + ',' + req.body.video_error_or_removed + ',' + '"' + req.body.description + '"' + '\r\n';;
+
+  fs.writeFile('./archive/USVideos.csv', appendString, { flag: 'a+' }, (err) => {
+    if (err) throw err;
+  })
   
   res.redirect('back');
 });
