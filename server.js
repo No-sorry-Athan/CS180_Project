@@ -88,7 +88,7 @@ app.post('/deleteVid', (req, res) => { //Occurs when user presses the delete but
           console.log(row);
           console.log(typeof(row));
       } else { //store all other row like a normal CSV
-        newCSV += row.video_id + ',' + row.trending_date + ',' + row.title + ',' + row.channel_title + ',' + row.category_id + ',' + row.publish_time + ',' + row.tags + ',' + row.views + ',' + row.likes + ',' + row.dislikes + ',' + row.comment_count + ',' + row.thumbnail_link + ',' + row.comments_disabled + ',' + row.ratings_disabled + ',' + row.video_error_or_removed + ',' + row.description + '\n';
+        newCSV += row.video_id + ',' + row.trending_date + ',' + '"' + row.title + '"' + ',' + '"' + row.channel_title + '"' + ',' + row.category_id + ',' + row.publish_time + ',' + '"' + row.tags + '"' + ',' + row.views + ',' + row.likes + ',' + row.dislikes + ',' + row.comment_count + ',' + row.thumbnail_link + ',' + row.comments_disabled + ',' + row.ratings_disabled + ',' + row.video_error_or_removed + ',' + '\"' + row.description + '\"' + '\r\n';
         // console.log('hi ', i);
       }
       i++;
@@ -111,7 +111,8 @@ app.post('/search', (req, res) => {
     .pipe(csv())
     .on('data', (row) => {
       if(toLower(row.title).includes(toLower(query))) {
-        
+        console.log(row);
+
         StringTemp = "";
         StringTemp += '<div class=\'video\'>'; 
         StringTemp += '<form action=\"/deleteVid\" method=\"POST\">';
