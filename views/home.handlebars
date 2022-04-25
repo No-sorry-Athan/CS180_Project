@@ -7,16 +7,27 @@
     </form>
 </div>
 <h2 style="padding-left: 7px"> Search Results </h2>
-<div id="editDialog" title="Edit Video Information">
-    <input type="text" placeholder="Title">
-    <input type="text" placeholder="Artist">
-    <input type="text" placeholder="Trending Date">
-    <input type="text" placeholder="Thumbnail">
-    <input type="text" placeholder="Tags">
-    <input type="text" placeholder="Like Count">
-    <input type="text" placeholder="Dislike Count">
-    <input type="text" placeholder="Comment Count">
-    <input type="text" placeholder="Description">
+<div id="csvCache" style="display: none">{{ csvCacheClient }}</div>
+<div id="editDialog" title="Edit Video Information" name={{ video }}>
+    <form action="/editVideo" method="POST">
+        <div style="display:flex"><label>Video ID</label>             <input type="text" value="{{ video.video_id }}"></div>
+        <div style="display:flex"><label>Trending Date</label>        <input type="text" value="{{ video.trending_date }}"></div>
+        <div style="display:flex"><label>Title</label>                <input type="text" value="{{ video.title }}"></div>
+        <div style="display:flex"><label>Channel Title</label>        <input type="text" value="{{ video.channel_title }}"></div>
+        <div style="display:flex"><label>Category ID</label>          <input type="text" value="{{ video.category_id }}"></div>
+        <div style="display:flex"><label>Publish Time</label>         <input type="text" value="{{ video.publish_time }}"></div>
+        <div style="display:flex"><label>Tags</label>                 <input type="text" value="{{ video.tags }}"></div>
+        <div style="display:flex"><label>Views</label>                <input type="text" value="{{ video.views }}"></div>
+        <div style="display:flex"><label>Likes</label>                <input type="text" value="{{ video.likes }}"></div>
+        <div style="display:flex"><label>Dislikes</label>             <input type="text" value="{{ video.dislikes }}"></div>
+        <div style="display:flex"><label>Comment Count</label>        <input type="text" value="{{ video.comment_count }}"></div>
+        <div style="display:flex"><label>Thumbnail Link</label>       <input type="text" value="{{ video.thumbnail_link }}"></div>
+        <div style="display:flex"><label>Comments Disabled</label>    <input type="text" value="{{ video.comments_disabled }}"></div>
+        <div style="display:flex"><label>Ratings Disabled</label>     <input type="text" value="{{ video.ratings_disabled }}"></div>
+        <div style="display:flex"><label>Video Error/Removed</label>  <input type="text" value="{{ video.video_error_or_removed }}"></div>
+        <div style="display:flex"><label>Description</label>          <input type="text" value="{{ video.description }}"></div>
+        <input type="submit" name="save" value="Save">
+    </form>
 </div>
 <div class="searchResults"> {{{ searchResultsClient }}} </div>
 <h2> Author / Trending Date / Likes </h2>
@@ -24,13 +35,15 @@
 
 <script>
     $(function() {
-        $('#editDialog').dialog({ autoOpen: false, modal: true });
+        let showDialog = $('#editDialog').attr('name') ? true : false;
+        $('#editDialog').dialog({ autoOpen: showDialog, modal: true });
+        
         $('.searchBtn').click(() => {
             $('.loadingIndicator').show();
         });
 
         $('.editBtn').click(() => {
-            alert('hello');
+            console.log("click " + event.target.value);
             $('#editDialog').dialog('open');
         });
     })
