@@ -28,7 +28,8 @@ var searchResultsChannelServer = "";
 var csvCacheServer = [];
 
 app.get('/', (req, res) => {
-  res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, searchResultsChannelClient: searchResultsChannelServer, csvCacheClient: JSON.stringify(csvCacheServer) });
+  //searchResultsChannelClient: searchResultsChannelServer
+  res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer) });
 });
 
 app.get('/public/:file', (req, res) => {
@@ -101,13 +102,7 @@ app.post('/search', (req, res) => {
         searchResultsServer += '<div class=\'videoContent\'>';
         searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
         searchResultsServer += '<p class=\'videoTitle\'>' + row.title + '</p>'; 
-<<<<<<< HEAD
-        searchResultsServer += '<div style="display: flex"><p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>';
-=======
-
->>>>>>> eb5b27d94a99c32f6f5abdb3712ff48b4d5dc03b
-        searchResultsServer += '<p class=\'videoAuthor\'>' + row.channel_title +'</p>'
-        searchResultsServer += '<p class=\'videoTrending\'>' + row.trending_date + '</p>'; 
+        searchResultsServer += '<p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>'; 
         searchResultsServer += '<button type=\"delete\" class=\"deleteBtn' +'\"name=\"Delete' + '\" value=\"'+ i+ '\"> Delete</button> \n';
         searchResultsServer += '</form>';
         searchResultsServer += '<button class="editBtn" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';

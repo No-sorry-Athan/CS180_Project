@@ -42,5 +42,7 @@
 }
 
 .deleteBtn {
-    width: 15%;
+    width: fit-content;
+    margin-left: 10px;
+    margin-top: 2px;
 }

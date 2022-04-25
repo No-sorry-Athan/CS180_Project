@@ -1,5 +1,10 @@
 <h1> Youtube Dataset Analysis </h1>
 <div>
+    <form action="/addVideo" method="POST">
+        <input type="text" name="YTAddLink" placeholder="Add YT Video to Dataset">
+        <input type="submit" class='addBtn' name="addDS" value="Add Video" />
+    </form>
+    <br><br>
     <form action="/search" method="POST">
         <input type="text" name="YTSearchBar" placeholder="Search Youtube Dataset">
         <input type="submit" class='searchBtn' name="searchDS" value="Search" />
@@ -7,7 +12,7 @@
     </form>
 </div>
 
-<div>
+{{!-- <div>
     <form action="/update" method="POST">
         <input type="text" name="YT_VideoIDUpdateBar" placeholder="VideoID to update">
 
@@ -18,11 +23,11 @@
         <input type="submit" class='updateBtn' name="updateDS" value="Update" />
         <div class="updateIndicator">Updated!</div>
     </form>
-</div>
+</div> --}}
 
 <h2 style="padding-left: 7px"> Search Results </h2>
 <div id="csvCache" style="display: none">{{{ csvCacheClient }}}</div>
-<div id="editDialog" title="Edit Video Information">
+<div id="editDialog" title="Edit Video Information" style="display:none">
     <form action="/editVideo" method="POST">
         <input style="display:none" id="editIndex" name="editIndex" value="-1"></input>
         <div style="display:flex"><label>Video ID</label>             <input id="videoEdit0" type="text" name="video_id"></div>
@@ -45,8 +50,8 @@
     </form>
 </div>
 <div class="searchResults"> {{{ searchResultsClient }}} </div>
-<h2> Author / Trending Date / Likes </h2>
-<div class="searchResultsChannel"> {{{ searchResultsChannelClient }}} </div>
+{{!-- <h2> Author / Trending Date / Likes </h2> --}}
+{{!-- <div class="searchResultsChannel"> {{{ searchResultsChannelClient }}} </div> --}}
 
 <script>
     $(function() {
@@ -84,26 +89,4 @@
         $('#videoEdit15').attr('value', cache[index].description);
     }
 </script>
-</script>
-        
-<form action="/addVideo" method="POST">
-        <input type="text" name="YTAddLink" placeholder="Add YT Video to Dataset">
-        <input type="submit" class='addBtn' name="addDS" value="Add Video" />
-<<<<<<< HEAD
-</form>
-=======
-</form>
-<script>
-    $(function() {
-        $('.addBtn').click(() => {
-
-        })
-    })
-
-    $(function () {
-        $('.updateBtn').click(() => {
-            $('.updateIndicator').show();
-        })
-    })
-</script>
->>>>>>> eb5b27d94a99c32f6f5abdb3712ff48b4d5dc03b
+    
