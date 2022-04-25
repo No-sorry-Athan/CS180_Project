@@ -41,6 +41,7 @@ app.get('/public/:file', (req, res) => {
 
 app.post('/search', (req, res) => {
   var query = req.body.YTSearchBar;
+  console.log(query)
   searchResultsServer = "";
   if(query == null || query == "") { res.redirect('back'); return; }
 
@@ -52,7 +53,7 @@ app.post('/search', (req, res) => {
         searchResultsServer += '<img src=\'' + row.thumbnail_link + '\' alt=\'Video Thumbnail\'>'; 
         searchResultsServer += '<div class=\'videoContent\'>';
         searchResultsServer += '<p class=\'videoTitle\'>' + row.title + '</p>'; 
-        searchResultsServer += '<p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>'; 
+        searchResultsServer += '<p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + ' / ' + row.video_id + '<\p>';
         searchResultsServer += '</div></div>\n';
       }
       if(toLower(row.channel_title).includes(toLower(query))) {
@@ -63,5 +64,50 @@ app.post('/search', (req, res) => {
       res.redirect('back');
     });
 });
+
+app.post('/update', (req, res) => {
+    var query = req.body.YT_VideoIDUpdateBar;
+    var counter = 1;
+    var temp = new Array(16);
+    //console.log(query)
+    //create temporary mini csv containing the to-update video
+    //update the temporary mini csv
+    //delete the video from the list
+    //add back the video with the new information
+
+    fs.createReadStream('./archive/USVideos.csv')
+    .pipe(csv())
+        .on('data', (row) => {
+        if ((row.video_id).includes(query)) {
+            console.log("hit");
+            temp[0] = row.video_id;
+            temp[1] = row.trending_date;
+            temp[2] = row.title;
+            temp[3] = row.channel_title;
+            temp[4] = row.category_id;
+            temp[5] = row.publish_time;
+            temp[6] = row.tags;
+            temp[7] = row.views;
+            temp[8] = row.likes;
+            temp[9] = row.dislikes;
+            temp[10] = row.comment_count;
+            temp[11] = row.thumbnail_link;
+            temp[12] = row.comments_disabled;
+            temp[13] = row.ratings_disabled;
+            temp[14] = row.video_error_or_removed;
+            temp[15] = row.description;
+
+            for (i = 0; i < 16; ++i) {
+                console.log(temp[i])
+            }
+            }
+
+    })
+
+
+    .on('end', () => {
+        res.redirect('back');
+    })
+})
 
 app.listen(port, () => console.log('Test listening on port ${' + port + '}!'));
