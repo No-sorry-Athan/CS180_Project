@@ -79,7 +79,7 @@ app.post('/deleteVid', (req, res) => { //Occurs when user presses the delete but
   console.log(delTitle);
   console.log(trendDate);
   console.log(typeof(currentThing))
-
+  newCSV += "video_id,trending_date,title,channel_title,category_id,publish_time,tags,views,likes,dislikes,comment_count,thumbnail_link,comments_disabled,ratings_disabled,video_error_or_removed,description\n";
   fs.createReadStream('./archive/USVideos.csv')
     .pipe(csv())
     .on('data', (row) => {
