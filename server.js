@@ -11,6 +11,8 @@ const csv = require('csv-parser');
 
 const { toLower } = require('lodash');
 
+const axios = require('axios');
+
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(express.static(path.join(__dirname, 'public') , options ));
@@ -149,5 +151,100 @@ app.post('/search', (req, res) => {
       res.redirect('back');
     });
 });
+
+api_key = 'AIzaSyAUxYRuyvyKROxYDBnOye1DlBL0evOufTE'
+
+app.post('/temp', (req, res) => {
+  // console.log("temp");
+  var videoLink = req.body.YTAddLink;
+  var insertCsv = []
+  var videoId = ''
+  axios.get('https://youtube.googleapis.com/youtube/v3/search?part=snippet' +
+  '&q=' + videoLink + '&key=' + api_key)
+  .then(res => {
+    // console.log(res)
+    // console.log(res.data.items)
+    videoInfoJson = res.data.items[0];
+    // console.log(videoInfoJson)
+    videoId = videoInfoJson.id.videoId;
+
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear().toString().substring(2,4)
+
+    today = yyyy + '.' + dd + '.' + mm;
+
+    insertCsv[0] = videoId;
+    insertCsv[1] = today;
+    insertCsv[2] = videoInfoJson.snippet.title;
+    insertCsv[3] = videoInfoJson.snippet.channelTitle;
+    insertCsv[5] = videoInfoJson.snippet.publishedAt;
+    insertCsv[11] = videoInfoJson.snippet.thumbnails.default.url
+    // placeholder
+    insertCsv[12]= "FALSE"
+    insertCsv[13]= "FALSE"
+    insertCsv[14]= "FALSE"
+
+    axios.get('https://youtube.googleapis.com/youtube/v3/videos?part=snippet,statistics' +
+    '&id=' + videoId + '&key=' + api_key)
+    .then(res => {
+      videoInfoJson = res.data.items[0];
+      // console.log(videoInfoJson)
+      insertCsv[4] = videoInfoJson.snippet.categoryId;
+
+      insertCsv[6] = videoInfoJson.snippet.tags;
+      insertCsv[7] = videoInfoJson.statistics.viewCount;
+      insertCsv[8] = videoInfoJson.statistics.likeCount;
+      insertCsv[9] = -1;
+      insertCsv[10]= videoInfoJson.statistics.commentCount;
+
+      insertCsv[15] = videoInfoJson.snippet.description;
+
+      csvString = '';
+        for ( i = 0; i < insertCsv.length; i++){
+          currentVal = insertCsv[i]
+          if (currentVal == undefined)
+            break;
+          type = typeof(currentVal)
+
+          if (type == typeof("")){
+            csvString += "\"" + currentVal.replaceAll('\n', '\\n') + "\"";
+          }
+          else if (type == typeof(1)){
+              csvString += currentVal.toString();
+          }
+          else if(type == typeof([])){
+              for (j = 0; j < currentVal.length; j++){
+                currentTag = currentVal[j];
+                if (currentTag == undefined)
+                  break;
+                csvString += "\"" + currentTag +  "\"" + "|"
+              }
+              csvString = csvString.substring(0, csvString.length - 1);
+          }
+          csvString += ",";
+        }
+        csvString = csvString.substring(0, csvString.length - 1);
+        csvString += "\r\n";
+
+        console.log(csvString);
+        
+        
+        fs.writeFile('./archive/USVideos.csv', csvString, { flag: 'a+' }, (err) => {
+          if (err) throw err;
+        })
+        console.log(insertCsv);
+    })
+    .catch(error => {
+      console.error(error)
+    })
+  })
+  .catch(error => {
+    console.error(error)
+  })
+  res.redirect('back');
+
+})
 
 app.listen(port, () => console.log('Test listening on port ${' + port + '}!'));
