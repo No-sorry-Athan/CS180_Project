@@ -104,6 +104,7 @@ app.post('/deleteVid', (req, res) => { //Occurs when user presses the delete but
 
 app.post('/search', (req, res) => {
   var query = req.body.YTSearchBar;
+
   var i = 0;
   searchResultsServer = "";
   csvCacheServer = [];
@@ -146,6 +147,7 @@ app.post('/search', (req, res) => {
         searchResultsServer += '<img src=\'' + row.thumbnail_link + '\' alt=\'Video Thumbnail\'>'; 
         searchResultsServer += '<div class=\'videoContent\'>';
         searchResultsServer += '<p class=\'videoTitle\'>' + row.title + '</p>'; 
+
         searchResultsServer += '<p class=\'videoAuthor\'>' + row.channel_title +'</p>'
         searchResultsServer += '<p class=\'videoTrending\'>' + row.trending_date + '</p>'; 
         searchResultsServer += '<button type=\"delete\" class=\"deleteBtn' +'\"name=\"Delete' + '\" value=\"'+ i+ '\"> Delete</button> \n';
@@ -162,7 +164,6 @@ app.post('/search', (req, res) => {
       res.redirect('back');
     });
 });
-
 app.post('/editVideo', (req, res) => {
   // update video through csv
   let index = req.body.editIndex;
