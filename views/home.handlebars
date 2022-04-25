@@ -7,14 +7,31 @@
     </form>
 </div>
 <h2 style="padding-left: 7px"> Search Results </h2>
+<div id="editDialog" title="Edit Video Information">
+    <input type="text" placeholder="Title">
+    <input type="text" placeholder="Artist">
+    <input type="text" placeholder="Trending Date">
+    <input type="text" placeholder="Thumbnail">
+    <input type="text" placeholder="Tags">
+    <input type="text" placeholder="Like Count">
+    <input type="text" placeholder="Dislike Count">
+    <input type="text" placeholder="Comment Count">
+    <input type="text" placeholder="Description">
+</div>
 <div class="searchResults"> {{{ searchResultsClient }}} </div>
 <h2> Author / Trending Date / Likes </h2>
 <div class="searchResultsChannel"> {{{ searchResultsChannelClient }}} </div>
 
 <script>
     $(function() {
+        $('#editDialog').dialog({ autoOpen: false, modal: true });
         $('.searchBtn').click(() => {
             $('.loadingIndicator').show();
-        })
+        });
+
+        $('.editBtn').click(() => {
+            alert('hello');
+            $('#editDialog').dialog('open');
+        });
     })
 </script>

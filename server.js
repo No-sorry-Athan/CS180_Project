@@ -49,10 +49,11 @@ app.post('/search', (req, res) => {
     .on('data', (row) => {
       if(toLower(row.title).includes(toLower(query))) {
         searchResultsServer += '<div class=\'video\'>'; 
-        searchResultsServer += '<img src=\'' + row.thumbnail_link + '\' alt=\'Video Thumbnail\'>'; 
+        searchResultsServer += '<img src=\'' + row.thumbnail_link + '\' alt=\'Video Thumbnail\' width="120" height="90">'; 
         searchResultsServer += '<div class=\'videoContent\'>';
         searchResultsServer += '<p class=\'videoTitle\'>' + row.title + '</p>'; 
-        searchResultsServer += '<p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>'; 
+        searchResultsServer += '<div style="display: flex"><p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>'; 
+        searchResultsServer += '<button type="button" class="editBtn">Edit</button></div>';
         searchResultsServer += '</div></div>\n';
       }
       if(toLower(row.channel_title).includes(toLower(query))) {
