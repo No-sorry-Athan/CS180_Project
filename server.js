@@ -103,18 +103,6 @@ app.post('/search', (req, res) => {
         searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
         searchResultsServer += '<p class=\'videoTitle\'>' + row.title + '</p>'; 
         searchResultsServer += '<p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>'; 
-<<<<<<< HEAD
-        searchResultsServer += '<p class=\'description\'>' + row.description + '</p>';
-        searchResultsServer += '</div></div>\n';
-        //'<p class=\'videoId\'>' + row.category_id + '</p>'; 
-        //'<p class=\'publish_time\'>' + row.publish_time + '</p>';
-        //'<p class=\'videoTags\'>' + row.tags + '</p>';   
-        //'<p class=\'views\'>' + row.views + '</p>';
-        //'<p class=\'likes\'>' + row.likes + '</p>';
-        //'<p class=\'dislikes\'>' + row.dislikes + '</p>';   
-        //'<p class=\'comment_count\'>' + row.comment_count + '</p>';   
-        //'<p class=\'description\'>' + row.description + '</p>';
-=======
         searchResultsServer += '<button type=\"delete\" class=\"deleteBtn' +'\"name=\"Delete' + '\" value=\"'+ i+ '\"> Delete</button> \n';
         searchResultsServer += '</form>';
         searchResultsServer += '<button class="editBtn" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
@@ -122,7 +110,6 @@ app.post('/search', (req, res) => {
         searchResultsServer += '</div>\n';
 
         i+=1;
->>>>>>> master
       }
       if(toLower(row.channel_title).includes(toLower(query))) {
         searchResultsChannelServer += ('<div>' + row.channel_title + ' / ' + row.trending_date + ' / ' + row.likes + '</div>');
