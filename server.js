@@ -243,4 +243,13 @@ app.post('/addVideo', (req, res) => {
 
 })
 
+app.post('/analytics', (req, res) => {
+    res.redirect('/analytics')
+})
+
+app.get('/analytics', (req, res) => {
+    //res.redirect('/analytics')
+    res.send('hello!')
+})
+
 app.listen(port, () => console.log('Test listening on port ${' + port + '}!'));
