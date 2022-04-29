@@ -87,14 +87,6 @@ app.post('/search', (req, res) => {
     .on('data', (row) => {
       if(toLower(row.title).includes(toLower(query))) {
         csvCacheServer.push(row);
-        // searchResultsServer += '<div class=\'video\'>'; 
-        // searchResultsServer += '<img src=\'' + row.thumbnail_link + '\' alt=\'Video Thumbnail\' width="120" height="90">'; 
-        // searchResultsServer += '<div class=\'videoContent\'>';
-        // searchResultsServer += '<p class=\'videoTitle\'>' + row.title + '</p>'; 
-        // searchResultsServer += '<div style="display: flex"><p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>'; 
-        // searchResultsServer += '<button type="submit" class="editBtn" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
-        // searchResultsServer += '</div></div></div>\n';
-        
         console.log(row);
 
         searchResultsServer += '<div class=\'video\'>'; 
