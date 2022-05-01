@@ -1,11 +1,9 @@
-var express = require('express');
-var path = require('path');
 const readline = require("readline")
 const fs = require('fs');
 
 //CSV parser
-function csv_parser() {
-    const input = fs.createReadStream('./archive/RUvideos.csv', { encoding: "utf-8"});
+function csv_parser(file) {
+    const input = fs.createReadStream(file, { encoding: "utf-8"});
     const rl = readline.createInterface({input});
     var d = Array();
     var result = Array();
@@ -55,3 +53,4 @@ function csv_parser() {
       
   
   }
+
