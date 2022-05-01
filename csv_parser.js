@@ -46,7 +46,7 @@ function csv_parser(file) {
         result[l][15] = s;
         result[l] = result[l].slice(0, 16)
       }
-      console.log(result)
+      return result;
     });
 
   
