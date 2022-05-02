@@ -1,0 +1,52 @@
+<h1> Data Analytics </h1>
+<div id="graphString" style="display: none"></div>
+<form action="/" method="get">
+    <button id="returnHome">Back to Home</button>
+</form>
+<br>
+<form action="/analytics/trendline" method="get">
+    <select name="countries" style="height:22.5px">
+        <option value="CA">CA</option>
+        <option value="DE">DE</option>
+        <option value="FR">FR</option>
+        <option value="GB">GB</option>
+        <option value="IN">IN</option>
+        <option value="JP">JP</option>
+        <option value="KR">KR</option>
+        <option value="MX">MX</option>
+        <option value="RU">RU</option>
+        <option value="US">US</option>
+    </select>
+    <input type="text" name="videoID" placeholder="Video ID for Analytics">
+    <button id="fetchBtn"> Fetch Info </button>
+    <button id="testBtn" type="button"> Display Graph </button>
+</form>
+<div class="loadingIndicator" style="display: none">Loading Results ...</div>
+
+<br><br>
+
+
+<div id="testChart" style="width: 100%; height: 400px; display: none"></div>
+<div id="noData" style="display: none"> No data in {{{ graphCountry }}} for input</div>
+
+
+<script>
+    $(function () {        
+        $('#fetchBtn').click(() => { $('.loadingIndicator').show(); });
+        $('#testBtn').click(() => {
+            if('{{{ graphTitle }}}' == "") {
+                $('#noData').show();
+            }
+            else {
+                $('#testChart').show();
+                const chart = new JSC.Chart('testChart', {
+                    debug: true,
+                    type: 'line',
+                    title_label_text: "{{{ graphCountry }}} - {{{ graphTitle }}} - Likes/Dislikes",
+                    
+                    series: [ {{{ graphInfo }}} ]
+                });
+            }
+        })
+    })
+</script>
