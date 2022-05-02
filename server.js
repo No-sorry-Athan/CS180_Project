@@ -12,6 +12,7 @@ const csv = require('csv-parser');
 const { toLower, rest } = require('lodash');
 
 const axios = require('axios');
+const { sort } = require('d3');
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -27,9 +28,15 @@ var searchResultsServer = "";
 var searchResultsChannelServer = "";
 var csvCacheServer = [];
 
+
 app.get('/', (req, res) => {
   //searchResultsChannelClient: searchResultsChannelServer
   res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer) });
+});
+
+//making a new page for reliable videos
+app.get('/reliableVids', (req, res) => {
+  res.render('reliableVids', {searchResultsClient: searchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer) });
 });
 
 app.get('/public/:file', (req, res) => {
@@ -65,7 +72,7 @@ app.post('/deleteVid', (req, res) => { //Occurs when user presses the delete but
       }
     })
     .on('end', () => {
-      console.log("Hellooooooooooo end of parsing");
+      
       fs.writeFileSync('./archive/USVideos.csv', newCSV);
       res.redirect('back');
     })
@@ -80,7 +87,7 @@ app.post('/search', (req, res) => {
   csvCacheServer = [];
   arrTemp = [];
   i = 0
-  if(query == null || query == "") { res.redirect('back'); return; }
+  if(query == null || query == "") { res.redirect('back'); return; } 
 
   fs.createReadStream('./archive/USVideos.csv')
     .pipe(csv())
@@ -111,6 +118,114 @@ app.post('/search', (req, res) => {
       res.redirect('back');
     });
 });
+
+app.post('/searchReliable', (req, res) => {
+  var query = req.body.YTSearchBar;
+  var i = 0;
+  var titleTemp = ""; //used to look for entries with the same title 
+  searchResultsServer = "";
+  searchResultsChannelServer = "";
+  csvCacheServer = [];
+  arrTemp = []; //main arr holding all entries
+  var arrTemp2 = []; //sub arr holding entries of the same title to find one with best ratio
+  var titlesExplored = []; //will check if we saw the current "titleTemp" already
+  var highestRatioArr = []; //array for the most reliable videos
+  var flag = false; //used to see if we run the search process to filter out the top vids of each title
+  var ratio = 0;
+  var ind; //for inserting video from arrTemp2 to topTenArr
+
+  i = 0
+  if(query == null || query == "") { res.redirect('back'); return; } //if searching nothing, dont show anything
+  fs.createReadStream('./archive/USVideos.csv') //parse through the CSV, gather vids with the keyWords,
+    .pipe(csv())                                //calculate like to dislike ratio for each video and sort it from most to least 1-10
+    .on('data', (row) => {
+      if(toLower(row.title).includes(toLower(query))) {
+        csvCacheServer.push(row);
+        console.log(row);
+        arrTemp.push(row); //first store all rows quiried into the array
+
+        // searchResultsServer += '<div class=\'video\'>'; 
+        // searchResultsServer += '<img src=\'' + row.thumbnail_link + '\' alt=\'Video Thumbnail\'>'; 
+        // searchResultsServer += '<div class=\'videoContent\'>';
+        // searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
+        // searchResultsServer += '<p class=\'videoTitle\'>' + row.title + '</p>'; 
+        // searchResultsServer += '<p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>'; 
+        // searchResultsServer += '<button type=\"delete\" class=\"deleteBtn' +'\"name=\"Delete' + '\" value=\"'+ i+ '\"> Delete</button> \n';
+        // searchResultsServer += '</form>';
+        // searchResultsServer += '<button class="editBtn" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
+        // searchResultsServer += '</div>'
+        // searchResultsServer += '</div>\n';
+
+        // i+=1;
+      }
+      if(toLower(row.channel_title).includes(toLower(query))) {
+        searchResultsChannelServer += ('<div>' + row.channel_title + ' / ' + row.trending_date + ' / ' + row.likes + '</div>');
+      }
+    })
+    .on('end', () => { //all videos are in arrTemp at this point, now look for the most reliable ones (best ratios)
+      for (let a = 0; a < arrTemp.length-1; a++){ //find the top ratiod videos of each title with the keyword
+        arrTemp2 = []; //reset arrTemp2
+        flag = false; //reset flag
+        ratio = 0; //reset ratio for next cycle
+        ind = 0; //reset
+
+        if (a == 0){ 
+          titleTemp = arrTemp[0].title; //set up for the initial vid
+          arrTemp2.push(arrTemp[0]);
+          titlesExplored.push(arrTemp[0].title); //stores the initial title
+          flag = true; 
+        } else if (a > 0) {
+          if (titlesExplored.contains(arrTemp[a].title)){ //sees if current video has already been searched through & its top vid was found
+            flag = false; 
+          } else {
+            titleTemp = arrTemp[a].title;
+            arrTemp2.push(arrTemp[a]);
+            titlesExplored.push(arrTemp[a].title);
+            flag = true;
+          }
+        }
+
+        if (flag){ //flag to search through arrTemp and find all videos with the same title, also meaning we have a new video title to use
+          for (let b = a+1; b < arrTemp.length; b++){ 
+            if (titleTemp == arrTemp[b].title){ //if same title, add it to arrTemp2, else do nothing
+              arrTemp2.push(arrTemp[b]);
+            }
+          }
+          //now go through the compiled arrTemp2 with all video instances of same title and find highest ratio
+          for (let c = 0; c < arrTemp2.length; c++){
+            if (ratio < (arrTemp2[c].likes / arrTemp2[c].dislikes)){
+              ratio = (arrTemp2[c].likes / arrTemp2[c].dislikes);//new highest ratio
+              ind = c;
+            } 
+          }
+          highestRatioArr.push(arrTemp2[ind]); //store the highest ratio vid
+        }
+      } //finding the top ratiod videos of each title with the keyword
+
+      //sort the videos by ratio (like/dislike) descending order
+      highestRatioArr.sort((a,b) => {
+        return (b.likes/b.dislikes) - (a.likes/a.dislikes);
+      });
+
+      for (let d = 0; d < 10; d++){ //now display the top 10 videos 
+        searchResultsServer += '<div class=\'video\'>'; 
+        searchResultsServer += '<img src=\'' + highestRatioArr[d].thumbnail_link + '\' alt=\'Video Thumbnail\'>'; 
+        searchResultsServer += '<div class=\'videoContent\'>';
+        searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
+        searchResultsServer += '<p class=\'videoTitle\'>' + highestRatioArr[d].title + '</p>'; 
+        searchResultsServer += '<p class=\'videoInfo\'>' + highestRatioArr[d].channel_title + ' / ' + highestRatioArr[d].trending_date + ' / ' + highestRatioArr[d].likes + ' / ' + highestRatioArr[d].dislikes +'</p>'; 
+        searchResultsServer += '<button type=\"delete\" class=\"deleteBtn' +'\"name=\"Delete' + '\" value=\"'+ i+ '\"> Delete</button> \n';
+        searchResultsServer += '</form>';
+        searchResultsServer += '<button class="editBtn" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
+        searchResultsServer += '</div>'
+        searchResultsServer += '</div>\n';
+      }
+
+      res.redirect('back');
+    });
+
+});
+
 app.post('/editVideo', (req, res) => {
   // update video through csv
   let index = req.body.editIndex;
