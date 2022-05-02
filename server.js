@@ -12,7 +12,7 @@ const csv = require('csv-parser');
 const { toLower, rest } = require('lodash');
 
 const axios = require('axios');
-const { sort } = require('d3');
+const { sort } = import('d3-array');
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -163,7 +163,7 @@ app.post('/searchReliable', (req, res) => {
       }
     })
     .on('end', () => { //all videos are in arrTemp at this point, now look for the most reliable ones (best ratios)
-      for (let a = 0; a < arrTemp.length-1; a++){ //find the top ratiod videos of each title with the keyword
+      for (let a = 0; a < arrTemp.length - 1; a++){ //find the top ratiod videos of each title with the keyword
         arrTemp2 = []; //reset arrTemp2
         flag = false; //reset flag
         ratio = 0; //reset ratio for next cycle
@@ -175,7 +175,7 @@ app.post('/searchReliable', (req, res) => {
           titlesExplored.push(arrTemp[0].title); //stores the initial title
           flag = true; 
         } else if (a > 0) {
-          if (titlesExplored.contains(arrTemp[a].title)){ //sees if current video has already been searched through & its top vid was found
+          if (titlesExplored.includes(arrTemp[a].title)){ //sees if current video has already been searched through & its top vid was found
             flag = false; 
           } else {
             titleTemp = arrTemp[a].title;
@@ -201,24 +201,30 @@ app.post('/searchReliable', (req, res) => {
           highestRatioArr.push(arrTemp2[ind]); //store the highest ratio vid
         }
       } //finding the top ratiod videos of each title with the keyword
+      console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+      console.log(highestRatioArr)
 
       //sort the videos by ratio (like/dislike) descending order
       highestRatioArr.sort((a,b) => {
         return (b.likes/b.dislikes) - (a.likes/a.dislikes);
       });
+      console.log("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+      console.log(highestRatioArr)
 
       for (let d = 0; d < 10; d++){ //now display the top 10 videos 
-        searchResultsServer += '<div class=\'video\'>'; 
-        searchResultsServer += '<img src=\'' + highestRatioArr[d].thumbnail_link + '\' alt=\'Video Thumbnail\'>'; 
-        searchResultsServer += '<div class=\'videoContent\'>';
-        searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
-        searchResultsServer += '<p class=\'videoTitle\'>' + highestRatioArr[d].title + '</p>'; 
-        searchResultsServer += '<p class=\'videoInfo\'>' + highestRatioArr[d].channel_title + ' / ' + highestRatioArr[d].trending_date + ' / ' + highestRatioArr[d].likes + ' / ' + highestRatioArr[d].dislikes +'</p>'; 
-        searchResultsServer += '<button type=\"delete\" class=\"deleteBtn' +'\"name=\"Delete' + '\" value=\"'+ i+ '\"> Delete</button> \n';
-        searchResultsServer += '</form>';
-        searchResultsServer += '<button class="editBtn" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
-        searchResultsServer += '</div>'
-        searchResultsServer += '</div>\n';
+        if (highestRatioArr[d] != undefined){
+          searchResultsServer += '<div class=\'video\'>'; 
+          searchResultsServer += '<img src=\'' + highestRatioArr[d].thumbnail_link + '\' alt=\'Video Thumbnail\'>'; 
+          searchResultsServer += '<div class=\'videoContent\'>';
+          searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
+          searchResultsServer += '<p class=\'videoTitle\'>' + highestRatioArr[d].title + '</p>'; 
+          searchResultsServer += '<p class=\'videoInfo\'>' + highestRatioArr[d].channel_title + ' / ' + highestRatioArr[d].trending_date + ' / ' + highestRatioArr[d].likes + ' / ' + highestRatioArr[d].dislikes +'</p>'; 
+          searchResultsServer += '<button type=\"delete\" class=\"deleteBtn' +'\"name=\"Delete' + '\" value=\"'+ i+ '\"> Delete</button> \n';
+          searchResultsServer += '</form>';
+          searchResultsServer += '<button class="editBtn" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
+          searchResultsServer += '</div>'
+          searchResultsServer += '</div>\n';
+        }
       }
 
       res.redirect('back');
