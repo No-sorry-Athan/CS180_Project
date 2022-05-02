@@ -10,6 +10,12 @@
     display: none;
 }
 
+.searchResults {
+    width: 60%;
+    height: 500px;
+    overflow-y: auto;
+}
+
 .video {
     display: flex;
 
