@@ -87,7 +87,6 @@ app.post('/search', (req, res) => {
     .on('data', (row) => {
       if(toLower(row.title).includes(toLower(query))) {
         csvCacheServer.push(row);
-        
         console.log(row);
 
         searchResultsServer += '<div class=\'video\'>'; 
@@ -234,6 +233,15 @@ app.post('/addVideo', (req, res) => {
   })
   res.redirect('back');
 
+})
+
+app.post('/analytics', (req, res) => {
+    res.redirect('/analytics')
+})
+
+app.get('/analytics', (req, res) => {
+    //res.redirect('/analytics')
+    res.send('hello!')
 })
 
 app.listen(port, () => console.log('Test listening on port ${' + port + '}!'));

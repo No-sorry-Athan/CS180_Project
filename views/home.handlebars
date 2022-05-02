@@ -10,20 +10,11 @@
         <input type="submit" class='searchBtn' name="searchDS" value="Search" />
         <div class="loadingIndicator">Loading Results ...</div>
     </form>
-</div>
-
-{{!-- <div>
-    <form action="/update" method="POST">
-        <input type="text" name="YT_VideoIDUpdateBar" placeholder="VideoID to update">
-
-        <input type="text" name="YT_TitleUpdateBar" placeholder="Title to update">
-        <input type="text" name="YT_CategoryUpdateBar" placeholder="Category to update">
-        <input type="text" name="YT_TagsUpdateBar" placeholder="Tags to update">
-
-        <input type="submit" class='updateBtn' name="updateDS" value="Update" />
-        <div class="updateIndicator">Updated!</div>
+    <br><br>
+    <form action="/analytics" method="GET">
+        <input type="submit" class='analyticsBtn' name="analyticsRedirect" value="Switch to Analytics" />
     </form>
-</div> --}}
+</div>
 
 <h2 style="padding-left: 7px"> Search Results </h2>
 <div id="csvCache" style="display: none">{{{ csvCacheClient }}}</div>
