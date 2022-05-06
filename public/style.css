@@ -1,3 +1,15 @@
+.belowNav {
+    margin-top: 0.5%;
+    margin-left: 1%;
+}
+
+.redBtn {
+    border: 2px solid red;
+    color: red;
+    padding: 1px 6px;
+    background-color: white;
+}
+
 #searchBar {
     width: 50%;
 }
