@@ -1,95 +1,83 @@
-{{!-- <nav class="navbar navbar-expand-lg navbar-light bg-light"> 
-  <div class="container-fluid">
-    <a class="navbar-brand">Youtube Analytics</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarText">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="/">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="reliableVids">Most Reliable Videos</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">PLACEHOLDER</a>
-        </li>
-      </ul>
-      <span class="navbar-text">
-        Welcome to our website!
-      </span>
-    </div>
-  </div>
-</nav> --}}
 <h1> Top 10 Reliable Videos </h1>
 <div>
-    <form action="/searchReliable" method="POST">
-        <input type="text" name="YTSearchBar" placeholder="Search Youtube Dataset">
-        <input type="submit" class='searchBtn' name="searchDS" value="Search" />
-        <div class="loadingIndicator">Loading Results ...</div>
-    </form>
+  <form action="/searchReliable" method="POST">
+    <input type="text" name="YTSearchBar" placeholder="Search Youtube Dataset">
+    <input type="submit" class='searchBtn' name="searchDS" value="Search" />
+    <div class="loadingIndicator">Loading Results ...</div>
+  </form>
 </div>
-<h2 style="padding-left: 7px"> Search Results </h2>
+<br>
+<h2 class="SRHeading" style="padding-left: 7px; display: none"> Search Results </h2>
 <div id="csvCache" style="display: none">{{{ csvCacheClient }}}</div>
 <div id="editDialog" title="Edit Video Information" style="display:none">
-    <form action="/editVideo" method="POST">
-        <input style="display:none" id="editIndex" name="editIndex" value="-1"></input>
-        <div style="display:flex"><label>Video ID</label>             <input id="videoEdit0" type="text" name="video_id"></div>
-        <div style="display:flex"><label>Trending Date</label>        <input id="videoEdit1" type="text" name="trending_date"></div>
-        <div style="display:flex"><label>Title</label>                <input id="videoEdit2" type="text" name="title"></div>
-        <div style="display:flex"><label>Channel Title</label>        <input id="videoEdit3" type="text" name="channel_title"></div>
-        <div style="display:flex"><label>Category ID</label>          <input id="videoEdit4" type="text" name="category_id"></div>
-        <div style="display:flex"><label>Publish Time</label>         <input id="videoEdit5" type="text" name="publish_time"></div>
-        <div style="display:flex"><label>Tags</label>                 <input id="videoEdit6" type="text" name="tags"></div>
-        <div style="display:flex"><label>Views</label>                <input id="videoEdit7" type="text" name="views"></div>
-        <div style="display:flex"><label>Likes</label>                <input id="videoEdit8" type="text" name="likes"></div>
-        <div style="display:flex"><label>Dislikes</label>             <input id="videoEdit9" type="text" name="dislikes"></div>
-        <div style="display:flex"><label>Comment Count</label>        <input id="videoEdit10" type="text" name="comment_count"></div>
-        <div style="display:flex"><label>Thumbnail Link</label>       <input id="videoEdit11" type="text" name="thumbnail_link"></div>
-        <div style="display:flex"><label>Comments Disabled</label>    <input id="videoEdit12" type="text" name="comments_disabled"></div>
-        <div style="display:flex"><label>Ratings Disabled</label>     <input id="videoEdit13" type="text" name="ratings_disabled"></div>
-        <div style="display:flex"><label>Video Error/Removed</label>  <input id="videoEdit14" type="text" name="video_error_or_removed"></div>
-        <div style="display:flex"><label>Description</label>          <input id="videoEdit15" type="text" name="description"></div>
-        <input type="submit" name="save" value="Save">
-    </form>
+  <form action="/editVideo" method="POST">
+    <input style="display:none" id="editIndex" name="editIndex" value="-1"></input>
+    <div style="display:flex"><label>Video ID</label> <input id="videoEdit0" type="text" name="video_id"></div>
+    <div style="display:flex"><label>Trending Date</label> <input id="videoEdit1" type="text" name="trending_date">
+    </div>
+    <div style="display:flex"><label>Title</label> <input id="videoEdit2" type="text" name="title"></div>
+    <div style="display:flex"><label>Channel Title</label> <input id="videoEdit3" type="text" name="channel_title">
+    </div>
+    <div style="display:flex"><label>Category ID</label> <input id="videoEdit4" type="text" name="category_id"></div>
+    <div style="display:flex"><label>Publish Time</label> <input id="videoEdit5" type="text" name="publish_time"></div>
+    <div style="display:flex"><label>Tags</label> <input id="videoEdit6" type="text" name="tags"></div>
+    <div style="display:flex"><label>Views</label> <input id="videoEdit7" type="text" name="views"></div>
+    <div style="display:flex"><label>Likes</label> <input id="videoEdit8" type="text" name="likes"></div>
+    <div style="display:flex"><label>Dislikes</label> <input id="videoEdit9" type="text" name="dislikes"></div>
+    <div style="display:flex"><label>Comment Count</label> <input id="videoEdit10" type="text" name="comment_count">
+    </div>
+    <div style="display:flex"><label>Thumbnail Link</label> <input id="videoEdit11" type="text" name="thumbnail_link">
+    </div>
+    <div style="display:flex"><label>Comments Disabled</label> <input id="videoEdit12" type="text"
+        name="comments_disabled"></div>
+    <div style="display:flex"><label>Ratings Disabled</label> <input id="videoEdit13" type="text"
+        name="ratings_disabled"></div>
+    <div style="display:flex"><label>Video Error/Removed</label> <input id="videoEdit14" type="text"
+        name="video_error_or_removed"></div>
+    <div style="display:flex"><label>Description</label> <input id="videoEdit15" type="text" name="description"></div>
+    <input type="submit" name="save" value="Save">
+  </form>
 </div>
 <div class="searchResults"> {{{ searchResultsClient }}} </div>
 
 <script>
-    $(function() {
-        $('#editDialog').dialog({ autoOpen: false, modal: true });
-        
-        $('.searchBtn').click(() => {
-            $('.loadingIndicator').show();
-        });
+  $(function () {
+    var cache = {{{ csvCacheClient }}};
+    if(cache.length != 0) { $('.SRHeading').show(); }
+    $('#MRVNav').css("background-color", $(':root').css("--nav-selected"));  
 
-        $('.editBtn').click(() => {
-            console.log("click " + event.target.value);
-            $('#editDialog').dialog('open');
-        });
-    })
+    $('#editDialog').dialog({ autoOpen: false, modal: true });
 
-      function updateVideoEditor(index) {
-        var cache = JSON.parse($('#csvCache').html())
-        
-        $('#editIndex').attr('value', index);
-        $('#videoEdit0').attr('value', cache[index].video_id);
-        $('#videoEdit1').attr('value', cache[index].trending_date);
-        $('#videoEdit2').attr('value', cache[index].title);
-        $('#videoEdit3').attr('value', cache[index].channel_title);
-        $('#videoEdit4').attr('value', cache[index].category_id);
-        $('#videoEdit5').attr('value', cache[index].publish_time);
-        $('#videoEdit6').attr('value', cache[index].tags);
-        $('#videoEdit7').attr('value', cache[index].views);
-        $('#videoEdit8').attr('value', cache[index].likes);
-        $('#videoEdit9').attr('value', cache[index].dislikes);
-        $('#videoEdit10').attr('value', cache[index].comment_count);
-        $('#videoEdit11').attr('value', cache[index].thumbnail_link);
-        $('#videoEdit12').attr('value', cache[index].comments_disabled);
-        $('#videoEdit13').attr('value', cache[index].ratings_disabled);
-        $('#videoEdit14').attr('value', cache[index].video_error_or_removed);
-        $('#videoEdit15').attr('value', cache[index].description);
-    }
+    $('.searchBtn').click(() => {
+      $('.loadingIndicator').show();
+    });
+
+    $('.editBtn').click(() => {
+      console.log("click " + event.target.value);
+      $('#editDialog').dialog('open');
+    });
+  })
+
+  function updateVideoEditor(index) {
+    var cache = JSON.parse($('#csvCache').html())
+
+    $('#editIndex').attr('value', index);
+    $('#videoEdit0').attr('value', cache[index].video_id);
+    $('#videoEdit1').attr('value', cache[index].trending_date);
+    $('#videoEdit2').attr('value', cache[index].title);
+    $('#videoEdit3').attr('value', cache[index].channel_title);
+    $('#videoEdit4').attr('value', cache[index].category_id);
+    $('#videoEdit5').attr('value', cache[index].publish_time);
+    $('#videoEdit6').attr('value', cache[index].tags);
+    $('#videoEdit7').attr('value', cache[index].views);
+    $('#videoEdit8').attr('value', cache[index].likes);
+    $('#videoEdit9').attr('value', cache[index].dislikes);
+    $('#videoEdit10').attr('value', cache[index].comment_count);
+    $('#videoEdit11').attr('value', cache[index].thumbnail_link);
+    $('#videoEdit12').attr('value', cache[index].comments_disabled);
+    $('#videoEdit13').attr('value', cache[index].ratings_disabled);
+    $('#videoEdit14').attr('value', cache[index].video_error_or_removed);
+    $('#videoEdit15').attr('value', cache[index].description);
+  }
 
 </script>

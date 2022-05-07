@@ -1,9 +1,5 @@
 <h1> Data Analytics </h1>
 <div id="graphString" style="display: none"></div>
-<form action="/" method="get">
-    <button id="returnHome">Back to Home</button>
-</form>
-<br>
 <form action="/analytics/trendline" method="get">
     <select name="countries" style="height:22.5px">
         <option value="CA">CA</option>
@@ -31,7 +27,8 @@
 
 
 <script>
-    $(function () {        
+    $(function () {
+        $('#LDNav').css("background-color", $(':root').css("--nav-selected"));   
         $('#fetchBtn').click(() => { $('.loadingIndicator').show(); });
         $('#testBtn').click(() => {
             if('{{{ graphTitle }}}' == "") {

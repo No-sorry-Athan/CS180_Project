@@ -17,7 +17,7 @@
     </form> --}}
 </div>
 
-<h2 style="padding-left: 7px"> Search Results </h2>
+<h2 class="SRHeading" style="padding-left: 7px; display: none"> Search Results </h2>
 <div id="csvCache" style="display: none">{{{ csvCacheClient }}}</div>
 <div id="editDialog" title="Edit Video Information" style="display:none">
     <form action="/editVideo" method="POST">
@@ -47,6 +47,11 @@
 
 <script>
     $(function() {
+        var cache = {{{ csvCacheClient }}};
+        if(cache.length != 0) { $(".SRHeading").show(); }
+
+        $('#homeNav').css("background-color", $(':root').css("--nav-selected"));  
+
         $('#editDialog').dialog({ autoOpen: false, modal: true });
         
         $('.searchBtn').click(() => {

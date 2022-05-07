@@ -1,3 +1,13 @@
+:root {
+    --main-text: #black;
+    --nav-selected: darkgrey;
+}
+
+.nav-item:hover {
+    background-color: lightgrey;
+    /* box-shadow: 1px 1px 1px #000000; */
+}
+
 .belowNav {
     margin-top: 0.5%;
     margin-left: 1%;
@@ -32,30 +42,28 @@
     display: flex;
 
     border: 2px solid black;
+    box-shadow: 1px 1px 1px #000000;
     margin: 5px;
 }
 
 .videoContent {
     display: flex;
     flex-direction: column;
+    padding-left: 10px;
 }
 
 .videoTitle {
     font-weight: bold;
-    padding-left: 10px;
-    margin-top: 15px;
-    margin-bottom: 5px;
+    margin-top: 5px;
+    margin-bottom: 0px;
 }
 
 .videoInfo {
-    padding-left: 10px;
-    margin-top: 5px;
     margin-bottom: 0px;
 }
 
 .editBtn {
     width: fit-content;
-    margin-left: 10px;
     margin-top: 2px;
 }
 
