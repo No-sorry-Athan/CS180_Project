@@ -25,10 +25,10 @@ var options = { dotfiles: 'ignore', etag: false, extensions: ['htm', 'html'], in
 
 var searchResultsServer = "";
 var csvCacheServer = [];
-
+var videoLink = ""
 
 app.get('/', (req, res) => {
-  res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer) });
+  res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer), embedVid : videoLink });
 });
 
 //making a new page for reliable videos
@@ -77,11 +77,10 @@ app.post('/deleteVid', (req, res) => { //Occurs when user presses the delete but
 
 app.post('/search', (req, res) => {
   var query = req.body.YTSearchBar;
-
   var i = 0;
   searchResultsServer = "";
   csvCacheServer = [];
-  arrTemp = [];
+  videoLink = "";
   i = 0
   if(query == null || query == "") { res.redirect('back'); return; } 
 
@@ -99,7 +98,10 @@ app.post('/search', (req, res) => {
         searchResultsServer += '<p class=\'videoTitle\'>' + row.title + '</p>';
         searchResultsServer += '<p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>';
         searchResultsServer += '<button class="editBtn" type="button" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
-        searchResultsServer += '<button type="submit" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button> \n';
+        searchResultsServer += '<button type="submit" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button>';
+        searchResultsServer += '</form>';
+        searchResultsServer += '<form action=\"/previewVideo\" method=\"POST\">';
+        searchResultsServer += '<button type="submit" class="prevVideo" name="previewVideo" value=' + i +'> Preview Video</button>';
         searchResultsServer += '</form>';
         searchResultsServer += '</div>'
         searchResultsServer += '</div>\n';
@@ -111,6 +113,13 @@ app.post('/search', (req, res) => {
       res.redirect('back');
     });
 });
+
+
+app.post('/previewVideo', (req, res) =>{
+  videoIndex = req.body.previewVideo;
+  videoLink = '"https://www.youtube.com/embed/' + csvCacheServer[videoIndex].video_id +'?autoplay=1&mute=1"';
+  res.redirect('back');
+})
 
 app.post('/searchReliable', (req, res) => {
   var query = req.body.YTSearchBar;
@@ -206,6 +215,7 @@ app.post('/searchReliable', (req, res) => {
           searchResultsServer += '<p class=\'videoInfo\'>' + highestRatioArr[d].channel_title + ' / ' + highestRatioArr[d].trending_date + ' / ' + highestRatioArr[d].likes + ' / ' + highestRatioArr[d].dislikes +'</p>'; 
           searchResultsServer += '<button type=\"delete\" class=\"deleteBtn' +'\"name=\"Delete' + '\" value=\"'+ i+ '\"> Delete</button> \n';
           searchResultsServer += '</form>';
+          
           searchResultsServer += '<button class="editBtn" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
           searchResultsServer += '</div>'
           searchResultsServer += '</div>\n';
