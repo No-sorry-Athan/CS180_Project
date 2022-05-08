@@ -1,48 +1,23 @@
-{{!-- navbar --}}
-<nav class="navbar navbar-expand-lg navbar-light bg-light"> 
-  <div class="container-fluid">
-    <a class="navbar-brand">Youtube Analytics</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarText">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="/">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="reliableVids">Most Reliable Videos</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">PLACEHOLDER</a>
-        </li>
-      </ul>
-      <span class="navbar-text">
-        Welcome to our website!
-      </span>
-    </div>
-  </div>
-</nav>
-{{!-- navbar --}}
 <h1> Youtube Dataset Analysis </h1>
 <div>
     <form action="/addVideo" method="POST">
-        <input type="text" name="YTAddLink" placeholder="Add YT Video to Dataset">
-        <input type="submit" class='addBtn' name="addDS" value="Add Video" />
+        <input type="text" name="YTAddLink" placeholder="Add YT Video to Dataset" style="vertical-align: middle">
+        <input type="submit" class='addBtn redBtn' name="addDS" value="Add Video" style="vertical-align: middle"/>
     </form>
     <br>
     <form action="/search" method="POST">
         <input type="text" name="YTSearchBar" placeholder="Search Youtube Dataset">
-        <input type="submit" class='searchBtn' name="searchDS" value="Search" />
+        <input type="submit" class='searchBtn redBtn' name="searchDS" value="Search" />
         <div class="loadingIndicator">Loading Results ...</div>
     </form>
-    <br><br>
+    <br>
+    {{!-- <br>
     <form action="/analytics" method="GET">
         <input type="submit" class='analyticsBtn' name="analyticsRedirect" value="Switch to Analytics" />
-    </form>
+    </form> --}}
 </div>
 
-<h2 style="padding-left: 7px"> Search Results </h2>
+<h2 class="SRHeading" style="padding-left: 7px; display: none"> Search Results </h2>
 <div id="csvCache" style="display: none">{{{ csvCacheClient }}}</div>
 <div id="editDialog" title="Edit Video Information" style="display:none">
     <form action="/editVideo" method="POST">
@@ -72,6 +47,11 @@
 
 <script>
     $(function() {
+        var cache = {{{ csvCacheClient }}};
+        if(cache.length != 0) { $(".SRHeading").show(); }
+
+        $('#homeNav').css("background-color", $(':root').css("--nav-selected"));  
+
         $('#editDialog').dialog({ autoOpen: false, modal: true });
         
         $('.searchBtn').click(() => {
