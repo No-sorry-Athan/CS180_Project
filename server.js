@@ -101,7 +101,7 @@ app.post('/search', (req, res) => {
         searchResultsServer += '<button type="submit" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button>';
         searchResultsServer += '</form>';
         searchResultsServer += '<form action=\"/previewVideo\" method=\"POST\">';
-        searchResultsServer += '<button type="submit" class="prevVideo" name="previewVideo" value=' + i +'> Preview Video</button>';
+        searchResultsServer += '<button type="submit" class="prevBtn" name="previewVideo" value=' + i +'> Preview Video</button>';
         searchResultsServer += '</form>';
         searchResultsServer += '</div>'
         searchResultsServer += '</div>\n';
