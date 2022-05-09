@@ -1,7 +1,7 @@
 <h1> Data Analytics </h1>
 <div id="graphString" style="display: none"></div>
 <form action="/analytics/trendline" method="get">
-    <select name="countries" style="height:22.5px">
+    <select id="countrySelector" name="countries">
         <option value="CA">CA</option>
         <option value="DE">DE</option>
         <option value="FR">FR</option>
@@ -28,7 +28,8 @@
 
 <script>
     $(function () {
-        $('#LDNav').css("background-color", $(':root').css("--nav-selected"));   
+        $('#LDNav').css("background-color", $(':root').css("--nav-selected")); 
+        $('#countrySelector').css('height', $('#fetchBtn').css('height'));
         $('#fetchBtn').click(() => { $('.loadingIndicator').show(); });
         $('#testBtn').click(() => {
             if('{{{ graphTitle }}}' == "") {
