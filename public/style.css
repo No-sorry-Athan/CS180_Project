@@ -72,3 +72,14 @@
     margin-left: 10px;
     margin-top: 2px;
 }
+
+.prevBtn {
+    width: fit-content;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.right {
+    float: right;
+    margin-right:20px;
+}

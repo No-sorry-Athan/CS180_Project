@@ -41,7 +41,15 @@
         <input type="submit" name="save" value="Save">
     </form>
 </div>
-<div class="searchResults"> {{{ searchResultsClient }}} </div>
+<div class="right">
+    <iframe id="previewVideo" style="display: right" width="560" height="350"
+    src = {{{embedVid}}}>
+    </iframe>
+</div>
+<div class="searchResults"> {{{ searchResultsClient }}}  
+</div>
+
+
 {{!-- <h2> Author / Trending Date / Likes </h2> --}}
 {{!-- <div class="searchResultsChannel"> {{{ searchResultsChannelClient }}} </div> --}}
 

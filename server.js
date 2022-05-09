@@ -9,10 +9,9 @@ const port = 3000;
 const fs = require('fs');
 const csv = require('csv-parser');
 
-const { toLower, rest } = require('lodash');
+const { toLower } = require('lodash');
 
 const axios = require('axios');
-const { sort } = import('d3-array');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,13 +24,11 @@ app.set('view engine', 'handlebars');
 var options = { dotfiles: 'ignore', etag: false, extensions: ['htm', 'html'], index: false };
 
 var searchResultsServer = "";
-var searchResultsChannelServer = "";
 var csvCacheServer = [];
-
+var videoLink = ""
 
 app.get('/', (req, res) => {
-  //searchResultsChannelClient: searchResultsChannelServer
-  res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer) });
+  res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer), embedVid : videoLink });
 });
 
 //making a new page for reliable videos
@@ -80,12 +77,10 @@ app.post('/deleteVid', (req, res) => { //Occurs when user presses the delete but
 
 app.post('/search', (req, res) => {
   var query = req.body.YTSearchBar;
-
   var i = 0;
   searchResultsServer = "";
-  searchResultsChannelServer = "";
   csvCacheServer = [];
-  arrTemp = [];
+  videoLink = "";
   i = 0
   if(query == null || query == "") { res.redirect('back'); return; } 
 
@@ -103,15 +98,15 @@ app.post('/search', (req, res) => {
         searchResultsServer += '<p class=\'videoTitle\'>' + row.title + '</p>';
         searchResultsServer += '<p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>';
         searchResultsServer += '<button class="editBtn" type="button" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
-        searchResultsServer += '<button type="submit" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button> \n';
+        searchResultsServer += '<button type="submit" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button>';
+        searchResultsServer += '</form>';
+        searchResultsServer += '<form action=\"/previewVideo\" method=\"POST\">';
+        searchResultsServer += '<button type="submit" class="prevBtn" name="previewVideo" value=' + i +'> Preview Video</button>';
         searchResultsServer += '</form>';
         searchResultsServer += '</div>'
         searchResultsServer += '</div>\n';
 
         i += 1;
-      }
-      if (toLower(row.channel_title).includes(toLower(query))) {
-        searchResultsChannelServer += ('<div>' + row.channel_title + ' / ' + row.trending_date + ' / ' + row.likes + '</div>');
       }
     })
     .on('end', () => {
@@ -119,12 +114,18 @@ app.post('/search', (req, res) => {
     });
 });
 
+
+app.post('/previewVideo', (req, res) =>{
+  videoIndex = req.body.previewVideo;
+  videoLink = '"https://www.youtube.com/embed/' + csvCacheServer[videoIndex].video_id +'?autoplay=1&mute=1"';
+  res.redirect('back');
+})
+
 app.post('/searchReliable', (req, res) => {
   var query = req.body.YTSearchBar;
   var i = 0;
   var titleTemp = ""; //used to look for entries with the same title 
   searchResultsServer = "";
-  searchResultsChannelServer = "";
   csvCacheServer = [];
   arrTemp = []; //main arr holding all entries
   var arrTemp2 = []; //sub arr holding entries of the same title to find one with best ratio
@@ -157,9 +158,6 @@ app.post('/searchReliable', (req, res) => {
         // searchResultsServer += '</div>\n';
 
         // i+=1;
-      }
-      if(toLower(row.channel_title).includes(toLower(query))) {
-        searchResultsChannelServer += ('<div>' + row.channel_title + ' / ' + row.trending_date + ' / ' + row.likes + '</div>');
       }
     })
     .on('end', () => { //all videos are in arrTemp at this point, now look for the most reliable ones (best ratios)
@@ -201,15 +199,11 @@ app.post('/searchReliable', (req, res) => {
           highestRatioArr.push(arrTemp2[ind]); //store the highest ratio vid
         }
       } //finding the top ratiod videos of each title with the keyword
-      console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-      console.log(highestRatioArr)
 
       //sort the videos by ratio (like/dislike) descending order
       highestRatioArr.sort((a,b) => {
         return (b.likes/b.dislikes) - (a.likes/a.dislikes);
       });
-      console.log("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
-      console.log(highestRatioArr)
 
       for (let d = 0; d < 10; d++){ //now display the top 10 videos 
         if (highestRatioArr[d] != undefined){
@@ -221,6 +215,7 @@ app.post('/searchReliable', (req, res) => {
           searchResultsServer += '<p class=\'videoInfo\'>' + highestRatioArr[d].channel_title + ' / ' + highestRatioArr[d].trending_date + ' / ' + highestRatioArr[d].likes + ' / ' + highestRatioArr[d].dislikes +'</p>'; 
           searchResultsServer += '<button type=\"delete\" class=\"deleteBtn' +'\"name=\"Delete' + '\" value=\"'+ i+ '\"> Delete</button> \n';
           searchResultsServer += '</form>';
+          
           searchResultsServer += '<button class="editBtn" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
           searchResultsServer += '</div>'
           searchResultsServer += '</div>\n';
