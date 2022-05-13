@@ -22,8 +22,10 @@
 <div id="editDialog" title="Edit Video Information" style="display:none">
     <form action="/editVideo" method="POST">
         <input style="display:none" id="editIndex" name="editIndex" value="-1"></input>
-        <div style="display:flex"><label>Video ID</label>             <input id="videoEdit0" type="text" name="video_id"></div>
-        <div style="display:flex"><label>Trending Date</label>        <input id="videoEdit1" type="text" name="trending_date"></div>
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap">
+        <div style="display:flex; flex-direction: column; border: 2px solid black; padding-left: 5px"><label style="font-size: smaller; color: grey;">Video ID</label>             <input id="videoEdit0" type="text" name="video_id" style="border: 0; outline: 0"></div>
+        {{!-- <div style="display:flex; justify-content: space-around;"><label>Video ID</label>             <input id="videoEdit0" type="text" name="video_id"></div> --}}
+        <div style="display:flex; justify-content: space-around;"><label>Trending Date</label>        <input id="videoEdit1" type="text" name="trending_date"></div>
         <div style="display:flex"><label>Title</label>                <input id="videoEdit2" type="text" name="title"></div>
         <div style="display:flex"><label>Channel Title</label>        <input id="videoEdit3" type="text" name="channel_title"></div>
         <div style="display:flex"><label>Category ID</label>          <input id="videoEdit4" type="text" name="category_id"></div>
@@ -39,6 +41,7 @@
         <div style="display:flex"><label>Video Error/Removed</label>  <input id="videoEdit14" type="text" name="video_error_or_removed"></div>
         <div style="display:flex"><label>Description</label>          <input id="videoEdit15" type="text" name="description"></div>
         <input type="submit" name="save" value="Save">
+        </div>
     </form>
 </div>
 <div class="right">
@@ -60,7 +63,11 @@
 
         $('#homeNav').css("background-color", $(':root').css("--nav-selected"));  
 
-        $('#editDialog').dialog({ autoOpen: false, modal: true });
+        // fixes close btn on dialog
+        var bootstrapButton = $.fn.button.noConflict() // return $.fn.button to previously assigned value
+        $.fn.bootstrapBtn = bootstrapButton            // give $().bootstrapBtn the Bootstrap functionality
+
+        $('#editDialog').dialog({ autoOpen: false, closeText: 'X', modal: true, title: 'Edit Video', width: '40%' });
         
         $('.searchBtn').click(() => {
             $('.loadingIndicator').show();
@@ -94,4 +101,3 @@
         $('#videoEdit15').attr('value', cache[index].description);
     }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
