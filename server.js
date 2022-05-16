@@ -27,7 +27,48 @@ var searchResultsServer = "";
 var csvCacheServer = [];
 var videoLink = ""
 
+var globalMostLikedVidServer = "ASDF"; // Setting up the initial mostLiked video
+var mostLikedInt = 0;
+
+function getMostLiked() {
+    console.log("GETTING LLIKED");
+    var i = 0;
+
+    fs.createReadStream('./archive/USVideos.csv')
+        .pipe(csv())
+        .on('data', (row) => {
+            if (parseInt(row.likes) > mostLikedInt) {
+                console.log("found more liked video");
+
+                //store the like counter into the int value
+                mostLikedInt = parseInt(row.likes);
+                //store the most liked video into the global variable
+                globalMostLikedVidServer = "";
+                globalMostLikedVidServer += '<div class=\'video\'>';
+                globalMostLikedVidServer += '<img src=\'' + row.thumbnail_link + '\' alt=\'video thumbnail\'>';
+                globalMostLikedVidServer += '<div class=\'videocontent\'>';
+                globalMostLikedVidServer += '<form action=\"/deletevid\" method=\"post\">';
+                globalMostLikedVidServer += '<p class=\'videotitle\'>' + row.title + '</p>';
+                globalMostLikedVidServer += '<p class=\'videoinfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>';
+                globalMostLikedVidServer += '<button class="editbtn" type="button" name="' + i + '" value="edit" onclick="updatevideoeditor(' + i + ')">edit</button>';
+                globalMostLikedVidServer += '<button type="submit" class=\"deletebtn' + '\"name=\"delete' + '\" value=\"' + i + '\"> delete</button>';
+                globalMostLikedVidServer += '</form>';
+                globalMostLikedVidServer += '<form action=\"/previewvideo\" method=\"post\">';
+                globalMostLikedVidServer += '<button type="submit" class="prevbtn" name="previewvideo" value=' + i + '> preview video</button>';
+                globalMostLikedVidServer += '</form>';
+                globalMostLikedVidServer += '</div>'
+                globalMostLikedVidServer += '</div>\n';
+
+                i += 1;
+            }
+        })
+        .on('end', () => {
+            console.log(globalMostLikedVidServer);
+        });
+};
+
 app.get('/', (req, res) => {
+    getMostLiked();
   res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer), embedVid : videoLink });
 });
 
@@ -404,5 +445,14 @@ app.get('/analytics/trendline', (req, res) => {
       res.redirect('back');
     });
 });
+
+app.post('/mostLiked', (req, res) => {
+    res.redirect('/mostLiked') // redirecting to the mostLiked section
+})
+
+app.get('/mostLiked', (req, res) => {
+    getMostLiked();
+    res.render('mostLiked', { globalMostLikedVidClient: globalMostLikedVidServer}); // Shows the most Liked video of all time
+})
 
 app.listen(port, () => console.log('Test listening on port ${' + port + '}!'));
