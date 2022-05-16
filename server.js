@@ -27,6 +27,16 @@ var searchResultsServer = "";
 var csvCacheServer = [];
 var videoLink = ""
 
+//As the server begins, the most liked video will be stored in the variable
+var mostLiked;
+fs.createReadStream('./archive/USVideos.csv')
+    .pipe(csv())
+    .on('data', (row) => {
+      if (mostLiked == undefined || parseInt(row.likes) > parseInt(mostLiked.likes)) {
+        mostLiked = row; 
+      }
+    })
+
 app.get('/', (req, res) => {
   res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer), embedVid : videoLink });
 });
@@ -63,13 +73,15 @@ app.post('/deleteVid', (req, res) => { //Occurs when user presses the delete but
         //do nothing
         console.log(row);
         console.log(typeof (row));
-      } else { //store all other row like a normal CSV
+      } else { //store all other row like a normal CSV //as we go through rows, compare with mostLiked
         newCSV += row.video_id + ',' + row.trending_date + ',' + '"' + row.title + '"' + ',' + '"' + row.channel_title + '"' + ',' + row.category_id + ',' + row.publish_time + ',' + '"' + row.tags + '"' + ',' + row.views + ',' + row.likes + ',' + row.dislikes + ',' + row.comment_count + ',' + row.thumbnail_link + ',' + row.comments_disabled + ',' + row.ratings_disabled + ',' + row.video_error_or_removed + ',' + '\"' + row.description + '\"' + '\r\n';
+        if (mostLiked == undefined || parseInt(row.likes) > parseInt(mostLiked.likes)) {
+          mostLiked = row; 
+        }
         // console.log('hi ', i);
       }
     })
     .on('end', () => {
-      
       fs.writeFileSync('./archive/USVideos.csv', newCSV);
       res.redirect('back');
     })
