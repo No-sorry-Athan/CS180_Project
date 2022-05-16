@@ -46,10 +46,64 @@ function csv_parser(file) {
         result[l][15] = s;
         result[l] = result[l].slice(0, 16)
       }
-      return result;
+      if(result[54][0] == '069D0NmW39o') console.log(result[54][15])
+      var r = convert(result);
+      console.log(result);
+      //console.log(r)
+      // return result;
     });
 
-  
-      
-  
+
   }
+
+  function parse(file) {
+    const input = fs.readFileSync('./archive/' + file, { encoding: "utf-8" });
+    var rowsArr = input.split('"\r\n');
+    console.log(rowsArr.length)
+  
+    var quote = [];
+    var arr = Array();
+    var entry = "";
+    for (var r = 0; r < rowsArr.length; r++) {
+      let tempArr = Array();
+      let row = rowsArr[r];
+      for (var letter = 0; letter < row.length; letter++) {
+        if (row[letter] == ',') {
+          if (quote.length == 0) {
+            tempArr.push(entry);
+            entry = "";
+          }
+          else { entry += row[letter]; }
+        }
+        else {
+          if (row[letter] == '"') {
+            if (quote.length == 0) { quote.push('"'); }
+            else { quote.pop(); }
+          }
+          entry += row[letter];
+        }
+      }
+      if (entry != "") { tempArr.push(entry); entry = ""; }
+      arr.push(tempArr);
+      quote = [];
+      //if(r == 52) console.log(tempArr);
+    }
+  
+    return convert(arr);
+  }
+
+function convert(arr){ 
+  // console.log(arr);
+    if(!arr.length) return null; 
+    var i = 0; 
+    len = arr.length, 
+    array = []; 
+    for(;i<len;i++){ 
+      array.push({"video_id":arr[i][0],"trending_date":arr[i][1],"title":arr[i][2],"channel_title":arr[i][3],"category_id":arr[i][4],"publish_time":arr[i][5],"tags":arr[i][6],"views":arr[i][7],"likes":arr[i][8],"dislikes":arr[i][9],"comment_count":arr[i][10],"thumbnail_link":arr[i][11],"comments_disabled":arr[i][12],"ratings_disabled":arr[i][13],"video_error_or_removed":arr[i][14],"description":arr[i][15]}); 
+    }
+     console.log(array[array.length-1]);
+    return array; 
+  }
+
+  // console.log(csv_parser('USVideos.csv'))
+  parse('USVideos.csv');
