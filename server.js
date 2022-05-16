@@ -8,8 +8,9 @@ const port = 3000;
 
 const fs = require('fs');
 const csv = require('csv-parser');
+const { csv_parser, csv_parser2, parse } = require('./csv_parser');
 
-const { toLower } = require('lodash');
+const { toLower, split } = require('lodash');
 
 const axios = require('axios');
 
@@ -25,15 +26,50 @@ var options = { dotfiles: 'ignore', etag: false, extensions: ['htm', 'html'], in
 
 var searchResultsServer = "";
 var csvCacheServer = [];
-var videoLink = ""
+var videoLink = "";
+var mostLiked;
+var thing = parse('USVideos.csv')
+//console.log(thing);
+for (var iterator = 0; iterator < thing.length; iterator++){
+  var myJSON = arrayToJSON(thing[iterator]);
+
+  if (mostLiked == undefined || parseInt(myJSON.likes) > parseInt(mostLiked.likes)) {
+   mostLiked = myJSON;
+  }
+}
+
+function arrayToJSON(arr) {
+  let d = arr; 
+  let myJSON = '{"video_id":"' + d[0] + '",';
+  myJSON += '"trending_date":"' + d[1] + '",';
+  title = '"' + d[2] + '"'
+
+  myJSON += '"title":"' + title.replace(new RegExp('"', 'g'), '') + '",';
+  myJSON += '"channel_title":"' + d[3].replace(new RegExp('"', 'g'), '') + '",';
+  myJSON += '"category_id":"' + d[4] + '",';
+  myJSON += '"publish_time":"' + d[5] + '",';
+  myJSON += '"tags":"' + d[6].replace(new RegExp('"', 'g'), '') + '",';
+
+  myJSON += '"views":"' + d[7] + '",';
+  myJSON += '"likes":"' + d[8] + '",';
+  myJSON += '"dislikes":"' + d[9] + '",';
+  myJSON += '"comment_count":"' + d[10] + '",';
+  myJSON += '"thumbnail_link":"' + d[11] + '",';
+  myJSON += '"comments_disabled":"' + d[12] + '",';
+  myJSON += '"ratings_disabled":"' + d[13] + '",';
+  myJSON += '"video_error_or_removed":"' + d[14] + '",';
+
+  myJSON += '"description":"' + d[15].replace(new RegExp('"', 'g'), '') + '"}';
+  return JSON.parse(myJSON);
+}
 
 app.get('/', (req, res) => {
-  res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer), embedVid : videoLink });
+  res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer), embedVid: videoLink });
 });
 
 //making a new page for reliable videos
 app.get('/reliableVids', (req, res) => {
-  res.render('reliableVids', {searchResultsClient: searchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer) });
+  res.render('reliableVids', { searchResultsClient: searchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer) });
 });
 
 app.get('/public/:file', (req, res) => {
@@ -69,7 +105,7 @@ app.post('/deleteVid', (req, res) => { //Occurs when user presses the delete but
       }
     })
     .on('end', () => {
-      
+
       fs.writeFileSync('./archive/USVideos.csv', newCSV);
       res.redirect('back');
     })
@@ -82,42 +118,178 @@ app.post('/search', (req, res) => {
   csvCacheServer = [];
   videoLink = "";
   i = 0
-  if(query == null || query == "") { res.redirect('back'); return; } 
+  if (query == null || query == "") { res.redirect('back'); return; }
 
-  fs.createReadStream('./archive/USVideos.csv')
-    .pipe(csv())
-    .on('data', (row) => {
-      if (toLower(row.title).includes(toLower(query))) {
-        csvCacheServer.push(row);
-        console.log(row);
+  //test
+  var arr = parse('USVideos.csv');
+  //test
 
-        searchResultsServer += '<div class=\'video\'>';
-        searchResultsServer += '<img src=\'' + row.thumbnail_link + '\' alt=\'Video Thumbnail\'>';
-        searchResultsServer += '<div class=\'videoContent\'>';
-        searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
-        searchResultsServer += '<p class=\'videoTitle\'>' + row.title + '</p>';
-        searchResultsServer += '<p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>';
-        searchResultsServer += '<button class="editBtn" type="button" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
-        searchResultsServer += '<button type="submit" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button>';
-        searchResultsServer += '</form>';
-        searchResultsServer += '<form action=\"/previewVideo\" method=\"POST\">';
-        searchResultsServer += '<button type="submit" class="prevBtn" name="previewVideo" value=' + i +'> Preview Video</button>';
-        searchResultsServer += '</form>';
-        searchResultsServer += '</div>'
-        searchResultsServer += '</div>\n';
+  //var jerry = csv_parser2('USVideos.csv');
+    function change(match){
+    return match.replace(/,/g, '');
+  }
+  const regex = /("(.|[\r\n])*?"|[^",\s]+)(?=\s*,|\s*$)|($)/g
 
-        i += 1;
-      }
-    })
-    .on('end', () => {
-      res.redirect('back');
-    });
+  const input = fs.readFileSync('./archive/USVideos.csv', { encoding: "utf-8"});
+  // temp = input.replace(/\$[0-9]*,*[0-9]*,*[0-9]+/g, change) 
+  temp = input.split('"\r\n')
+  // console.log(temp)
+  for (var toherTemp = 1; toherTemp < temp.length; toherTemp++){
+    var d = temp[toherTemp].match(regex);
+    if (d == undefined){
+      console.log(toherTemp)
+      break;
+    }
+    console.log(d)
+    var myJSON = arrayToJSON(d);
+    
+    if (toLower(myJSON.title).includes(toLower(query))) {
+      csvCacheServer.push(myJSON);
+      //console.log(myJSON);
+
+      searchResultsServer += '<div class=\'video\'>';
+      searchResultsServer += '<img src=\'' + myJSON.thumbnail_link + '\' alt=\'Video Thumbnail\'>';
+      searchResultsServer += '<div class=\'videoContent\'>';
+      searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
+      searchResultsServer += '<p class=\'videoTitle\'>' + myJSON.title + '</p>';
+      searchResultsServer += '<p class=\'videoInfo\'>' + myJSON.channel_title + ' / ' + myJSON.trending_date + '</p>';
+      searchResultsServer += '<button class="editBtn" type="button" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
+      searchResultsServer += '<button type="submit" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button>';
+      searchResultsServer += '</form>';
+      searchResultsServer += '<form action=\"/previewVideo\" method=\"POST\">';
+      searchResultsServer += '<button type="submit" class="prevBtn" name="previewVideo" value=' + i + '> Preview Video</button>';
+      searchResultsServer += '</form>';
+      searchResultsServer += '</div>'
+      searchResultsServer += '</div>\n';
+
+      i += 1;
+    }
+  }
+
+  res.redirect('back')
+  
+  //var jerry = csv_parser('USVideos.csv');
+  // var d = Array();
+  // var flag = 0;
+  // function change(match){
+  //   return match.replace(/,/g, '');
+  // }
+  // console.log("hi");
+  // jerry.on('data', (row) => {
+  //   // row = row.replace(/\$[0-9]*,*[0-9]*,*[0-9]+/g, change) 
+  //   // if (flag == 0)
+  //   // console.log(row)
+  //   var bruh = row.split('"\r\n')
+  //   console.log(bruh)
+  //   console.log('bruh')
+  //   console.log(bruh.length)
+  //   for (var temp = 0; temp < bruh.length; temp++){
+  //     // console.log(bruh[temp])
+  //     var d = bruh[temp].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+  //     var myJSON = arrayToJSON(d);
+  //     if (toLower(myJSON.title).includes(toLower(query))) {
+  //       csvCacheServer.push(myJSON);
+  //       console.log(myJSON);
+  
+  //       searchResultsServer += '<div class=\'video\'>';
+  //       searchResultsServer += '<img src=\'' + myJSON.thumbnail_link + '\' alt=\'Video Thumbnail\'>';
+  //       searchResultsServer += '<div class=\'videoContent\'>';
+  //       searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
+  //       searchResultsServer += '<p class=\'videoTitle\'>' + myJSON.title + '</p>';
+  //       searchResultsServer += '<p class=\'videoInfo\'>' + myJSON.channel_title + ' / ' + myJSON.trending_date + '</p>';
+  //       searchResultsServer += '<button class="editBtn" type="button" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
+  //       searchResultsServer += '<button type="submit" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button>';
+  //       searchResultsServer += '</form>';
+  //       searchResultsServer += '<form action=\"/previewVideo\" method=\"POST\">';
+  //       searchResultsServer += '<button type="submit" class="prevBtn" name="previewVideo" value=' + i + '> Preview Video</button>';
+  //       searchResultsServer += '</form>';
+  //       searchResultsServer += '</div>'
+  //       searchResultsServer += '</div>\n';
+  
+  //       i += 1;
+  //     }
+  //   }
+  //   var d = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+  //   // d = row.split('","')
+  //   // if (flag == 0)
+  //   // console.log(d)
+
+
+  //   // if(d[0][0] == '\\' && d[0][1] == 'n'){
+  //   //   flag = result.length
+  //   //   for(var j = 0; j < d.length; j++){
+  //   //     d[flag - 1].push(d[j])
+  //   //   }
+  //   // }
+  //   // else{
+  //   //   flag++;
+  //   // }
+  //   //if else
+
+  //   // var myJSON = arrayToJSON(d);
+  //   // //console.log(myJSON);
+
+  //   // // if (i == 2) { console.log(myJSON); } i++;
+  //   // if (toLower(myJSON.title).includes(toLower(query))) {
+  //   //   csvCacheServer.push(myJSON);
+  //   //   console.log(myJSON);
+
+  //   //   searchResultsServer += '<div class=\'video\'>';
+  //   //   searchResultsServer += '<img src=\'' + myJSON.thumbnail_link + '\' alt=\'Video Thumbnail\'>';
+  //   //   searchResultsServer += '<div class=\'videoContent\'>';
+  //   //   searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
+  //   //   searchResultsServer += '<p class=\'videoTitle\'>' + myJSON.title + '</p>';
+  //   //   searchResultsServer += '<p class=\'videoInfo\'>' + myJSON.channel_title + ' / ' + myJSON.trending_date + '</p>';
+  //   //   searchResultsServer += '<button class="editBtn" type="button" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
+  //   //   searchResultsServer += '<button type="submit" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button>';
+  //   //   searchResultsServer += '</form>';
+  //   //   searchResultsServer += '<form action=\"/previewVideo\" method=\"POST\">';
+  //   //   searchResultsServer += '<button type="submit" class="prevBtn" name="previewVideo" value=' + i + '> Preview Video</button>';
+  //   //   searchResultsServer += '</form>';
+  //   //   searchResultsServer += '</div>'
+  //   //   searchResultsServer += '</div>\n';
+
+  //   //   i += 1;
+  //   // }
+  // })
+  // jerry.on('close', () => {
+  //   res.redirect('back');
+  // })
+
+  // fs.createReadStream('./archive/USVideos.csv')
+  //   .pipe(csv())
+  //   .on('data', (row) => {
+  //     if (toLower(row.title).includes(toLower(query))) {
+  //       csvCacheServer.push(row);
+  //       console.log(row);
+
+  //       searchResultsServer += '<div class=\'video\'>';
+  //       searchResultsServer += '<img src=\'' + row.thumbnail_link + '\' alt=\'Video Thumbnail\'>';
+  //       searchResultsServer += '<div class=\'videoContent\'>';
+  //       searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
+  //       searchResultsServer += '<p class=\'videoTitle\'>' + row.title + '</p>';
+  //       searchResultsServer += '<p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>';
+  //       searchResultsServer += '<button class="editBtn" type="button" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
+  //       searchResultsServer += '<button type="submit" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button>';
+  //       searchResultsServer += '</form>';
+  //       searchResultsServer += '<form action=\"/previewVideo\" method=\"POST\">';
+  //       searchResultsServer += '<button type="submit" class="prevBtn" name="previewVideo" value=' + i +'> Preview Video</button>';
+  //       searchResultsServer += '</form>';
+  //       searchResultsServer += '</div>'
+  //       searchResultsServer += '</div>\n';
+
+  //       i += 1;
+  //     }
+  //   })
+  //   .on('end', () => {
+  //     res.redirect('back');
+  //   });
 });
 
 
-app.post('/previewVideo', (req, res) =>{
+app.post('/previewVideo', (req, res) => {
   videoIndex = req.body.previewVideo;
-  videoLink = '"https://www.youtube.com/embed/' + csvCacheServer[videoIndex].video_id +'?autoplay=1&mute=1"';
+  videoLink = '"https://www.youtube.com/embed/' + csvCacheServer[videoIndex].video_id + '?autoplay=1&mute=1"';
   res.redirect('back');
 })
 
@@ -136,11 +308,11 @@ app.post('/searchReliable', (req, res) => {
   var ind; //for inserting video from arrTemp2 to topTenArr
 
   i = 0
-  if(query == null || query == "") { res.redirect('back'); return; } //if searching nothing, dont show anything
+  if (query == null || query == "") { res.redirect('back'); return; } //if searching nothing, dont show anything
   fs.createReadStream('./archive/USVideos.csv') //parse through the CSV, gather vids with the keyWords,
     .pipe(csv())                                //calculate like to dislike ratio for each video and sort it from most to least 1-10
     .on('data', (row) => {
-      if(toLower(row.title).includes(toLower(query))) {
+      if (toLower(row.title).includes(toLower(query))) {
         csvCacheServer.push(row);
         console.log(row);
         arrTemp.push(row); //first store all rows quiried into the array
@@ -161,20 +333,20 @@ app.post('/searchReliable', (req, res) => {
       }
     })
     .on('end', () => { //all videos are in arrTemp at this point, now look for the most reliable ones (best ratios)
-      for (let a = 0; a < arrTemp.length - 1; a++){ //find the top ratiod videos of each title with the keyword
+      for (let a = 0; a < arrTemp.length - 1; a++) { //find the top ratiod videos of each title with the keyword
         arrTemp2 = []; //reset arrTemp2
         flag = false; //reset flag
         ratio = 0; //reset ratio for next cycle
         ind = 0; //reset
 
-        if (a == 0){ 
+        if (a == 0) {
           titleTemp = arrTemp[0].title; //set up for the initial vid
           arrTemp2.push(arrTemp[0]);
           titlesExplored.push(arrTemp[0].title); //stores the initial title
-          flag = true; 
+          flag = true;
         } else if (a > 0) {
-          if (titlesExplored.includes(arrTemp[a].title)){ //sees if current video has already been searched through & its top vid was found
-            flag = false; 
+          if (titlesExplored.includes(arrTemp[a].title)) { //sees if current video has already been searched through & its top vid was found
+            flag = false;
           } else {
             titleTemp = arrTemp[a].title;
             arrTemp2.push(arrTemp[a]);
@@ -183,39 +355,39 @@ app.post('/searchReliable', (req, res) => {
           }
         }
 
-        if (flag){ //flag to search through arrTemp and find all videos with the same title, also meaning we have a new video title to use
-          for (let b = a+1; b < arrTemp.length; b++){ 
-            if (titleTemp == arrTemp[b].title){ //if same title, add it to arrTemp2, else do nothing
+        if (flag) { //flag to search through arrTemp and find all videos with the same title, also meaning we have a new video title to use
+          for (let b = a + 1; b < arrTemp.length; b++) {
+            if (titleTemp == arrTemp[b].title) { //if same title, add it to arrTemp2, else do nothing
               arrTemp2.push(arrTemp[b]);
             }
           }
           //now go through the compiled arrTemp2 with all video instances of same title and find highest ratio
-          for (let c = 0; c < arrTemp2.length; c++){
-            if (ratio < (arrTemp2[c].likes / arrTemp2[c].dislikes)){
+          for (let c = 0; c < arrTemp2.length; c++) {
+            if (ratio < (arrTemp2[c].likes / arrTemp2[c].dislikes)) {
               ratio = (arrTemp2[c].likes / arrTemp2[c].dislikes);//new highest ratio
               ind = c;
-            } 
+            }
           }
           highestRatioArr.push(arrTemp2[ind]); //store the highest ratio vid
         }
       } //finding the top ratiod videos of each title with the keyword
 
       //sort the videos by ratio (like/dislike) descending order
-      highestRatioArr.sort((a,b) => {
-        return (b.likes/b.dislikes) - (a.likes/a.dislikes);
+      highestRatioArr.sort((a, b) => {
+        return (b.likes / b.dislikes) - (a.likes / a.dislikes);
       });
 
-      for (let d = 0; d < 10; d++){ //now display the top 10 videos 
-        if (highestRatioArr[d] != undefined){
-          searchResultsServer += '<div class=\'video\'>'; 
-          searchResultsServer += '<img src=\'' + highestRatioArr[d].thumbnail_link + '\' alt=\'Video Thumbnail\'>'; 
+      for (let d = 0; d < 10; d++) { //now display the top 10 videos 
+        if (highestRatioArr[d] != undefined) {
+          searchResultsServer += '<div class=\'video\'>';
+          searchResultsServer += '<img src=\'' + highestRatioArr[d].thumbnail_link + '\' alt=\'Video Thumbnail\'>';
           searchResultsServer += '<div class=\'videoContent\'>';
           searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
-          searchResultsServer += '<p class=\'videoTitle\'>' + highestRatioArr[d].title + '</p>'; 
-          searchResultsServer += '<p class=\'videoInfo\'>' + highestRatioArr[d].channel_title + ' / ' + highestRatioArr[d].trending_date + ' / ' + highestRatioArr[d].likes + ' / ' + highestRatioArr[d].dislikes +'</p>'; 
-          searchResultsServer += '<button type=\"delete\" class=\"deleteBtn' +'\"name=\"Delete' + '\" value=\"'+ i+ '\"> Delete</button> \n';
+          searchResultsServer += '<p class=\'videoTitle\'>' + highestRatioArr[d].title + '</p>';
+          searchResultsServer += '<p class=\'videoInfo\'>' + highestRatioArr[d].channel_title + ' / ' + highestRatioArr[d].trending_date + ' / ' + highestRatioArr[d].likes + ' / ' + highestRatioArr[d].dislikes + '</p>';
+          searchResultsServer += '<button type=\"delete\" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button> \n';
           searchResultsServer += '</form>';
-          
+
           searchResultsServer += '<button class="editBtn" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
           searchResultsServer += '</div>'
           searchResultsServer += '</div>\n';
@@ -386,14 +558,14 @@ app.get('/analytics/trendline', (req, res) => {
       csvString += "{name: 'Likes', points:[\n"
       for (i = 0; i < csvCacheAnalytics.length; i++) {
         currentRow = csvCacheAnalytics[i];
-        csvString += "[" + "'" + currentRow.trending_date + "', " + currentRow.likes + "]," 
+        csvString += "[" + "'" + currentRow.trending_date + "', " + currentRow.likes + "],"
       }
       csvString = csvString.substring(0, csvString.length - 1)
       csvString += "]},\n"
       csvString += "{name: 'Dislikes', points:[\n"
       for (i = 0; i < csvCacheAnalytics.length; i++) {
         currentRow = csvCacheAnalytics[i]
-        csvString += "[" + "'" + currentRow.trending_date + "', " + currentRow.dislikes + "]," 
+        csvString += "[" + "'" + currentRow.trending_date + "', " + currentRow.dislikes + "],"
       }
       csvString = csvString.substring(0, csvString.length - 1)
       csvString += "]}\n"
