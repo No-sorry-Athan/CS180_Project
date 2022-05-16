@@ -98,6 +98,7 @@ app.post('/deleteVid', (req, res) => { //Occurs when user presses the delete but
   var newCSV = ""; //new string to make the new CSV without the entry we delete
   // console.log("Hello world ", req.body);
   deleteIndex = req.body.Delete;
+  mostLikedInt = 0;
   // console.log(deleteIndex);
 
   newCSV += "video_id,trending_date,title,channel_title,category_id,publish_time,tags,views,likes,dislikes,comment_count,thumbnail_link,comments_disabled,ratings_disabled,video_error_or_removed,description\n";
@@ -111,7 +112,9 @@ app.post('/deleteVid', (req, res) => { //Occurs when user presses the delete but
       } else { //store all other row like a normal CSV
         newCSV += row.video_id + ',' + row.trending_date + ',' + '"' + row.title + '"' + ',' + '"' + row.channel_title + '"' + ',' + row.category_id + ',' + row.publish_time + ',' + '"' + row.tags + '"' + ',' + row.views + ',' + row.likes + ',' + row.dislikes + ',' + row.comment_count + ',' + row.thumbnail_link + ',' + row.comments_disabled + ',' + row.ratings_disabled + ',' + row.video_error_or_removed + ',' + '\"' + row.description + '\"' + '\r\n';
         if (row.likes > mostLikedInt){
-          mostLikedInt = row.likes;
+          mostLikedInt = parseInt(row.likes);
+          mostLikedVidLink = '"https://www.youtube.com/embed/' + row.video_id +'"';
+          //store the most liked video into the global variable
           globalMostLikedVidServer = "";
           globalMostLikedVidServer += '<div class=\'video\'>';
           globalMostLikedVidServer += '<img src=\'' + row.thumbnail_link + '\' alt=\'video thumbnail\'>';
@@ -119,15 +122,15 @@ app.post('/deleteVid', (req, res) => { //Occurs when user presses the delete but
           //globalMostLikedVidServer += '<form action=\"/deletevid\" method=\"post\">';
           globalMostLikedVidServer += '<p class=\'videotitle\'>' + row.title + '</p>';
           globalMostLikedVidServer += '<p class=\'videoinfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>';
+          globalMostLikedVidServer += '<p class=\'vidStuff\'>' + row.views + ' views / ' + row.likes + ' likes</p>';
+          // temp = row.description;
+          // temp.replaceAll('\n, <br>')
+          // globalMostLikedVidServer += '<p class=\'descrption\'Description:>' + temp + '</p>';
           //globalMostLikedVidServer += '<button class="editbtn" type="button" name="' + i + '" value="edit" onclick="updatevideoeditor(' + i + ')">edit</button>';
           //globalMostLikedVidServer += '<button type="submit" class=\"deletebtn' + '\"name=\"delete' + '\" value=\"' + i + '\"> delete</button>';
-          globalMostLikedVidServer += '</form>';
-          globalMostLikedVidServer += '<form action=\"/previewvideo\" method=\"post\">';
-          globalMostLikedVidServer += '<button type="submit" class="prevbtn" name="previewvideo" value=' + 0 + '> preview video</button>';
-          globalMostLikedVidServer += '</form>';
+          globalMostLikedVidServer += '</form>';                
           globalMostLikedVidServer += '</div>'
           globalMostLikedVidServer += '</div>\n';
-
           // i += 1;
         }
         // console.log('hi ', i);
