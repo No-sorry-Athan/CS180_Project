@@ -28,7 +28,7 @@ var csvCacheServer = [];
 var videoLink = ""
 
 var globalMostLikedVidServer = "ASDF"; // Setting up the initial mostLiked video
-var mostLikedInt = 0;
+var mostLikedInt = 0; //global counter to track the most likes
 
 function getMostLiked() {
     var i = 0;
@@ -105,6 +105,26 @@ app.post('/deleteVid', (req, res) => { //Occurs when user presses the delete but
         console.log(typeof (row));
       } else { //store all other row like a normal CSV
         newCSV += row.video_id + ',' + row.trending_date + ',' + '"' + row.title + '"' + ',' + '"' + row.channel_title + '"' + ',' + row.category_id + ',' + row.publish_time + ',' + '"' + row.tags + '"' + ',' + row.views + ',' + row.likes + ',' + row.dislikes + ',' + row.comment_count + ',' + row.thumbnail_link + ',' + row.comments_disabled + ',' + row.ratings_disabled + ',' + row.video_error_or_removed + ',' + '\"' + row.description + '\"' + '\r\n';
+        if (row.likes > mostLikedInt){
+          mostLikedInt = row.likes;
+          globalMostLikedVidServer = "";
+          globalMostLikedVidServer += '<div class=\'video\'>';
+          globalMostLikedVidServer += '<img src=\'' + row.thumbnail_link + '\' alt=\'video thumbnail\'>';
+          globalMostLikedVidServer += '<div class=\'videocontent\'>';
+          //globalMostLikedVidServer += '<form action=\"/deletevid\" method=\"post\">';
+          globalMostLikedVidServer += '<p class=\'videotitle\'>' + row.title + '</p>';
+          globalMostLikedVidServer += '<p class=\'videoinfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>';
+          //globalMostLikedVidServer += '<button class="editbtn" type="button" name="' + i + '" value="edit" onclick="updatevideoeditor(' + i + ')">edit</button>';
+          //globalMostLikedVidServer += '<button type="submit" class=\"deletebtn' + '\"name=\"delete' + '\" value=\"' + i + '\"> delete</button>';
+          globalMostLikedVidServer += '</form>';
+          globalMostLikedVidServer += '<form action=\"/previewvideo\" method=\"post\">';
+          globalMostLikedVidServer += '<button type="submit" class="prevbtn" name="previewvideo" value=' + 0 + '> preview video</button>';
+          globalMostLikedVidServer += '</form>';
+          globalMostLikedVidServer += '</div>'
+          globalMostLikedVidServer += '</div>\n';
+
+          // i += 1;
+        }
         // console.log('hi ', i);
       }
     })
