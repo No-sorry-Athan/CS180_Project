@@ -435,7 +435,7 @@ app.post('/addVideo', (req, res) => {
 
           if (parseInt(insertCsv[8]) > mostLikedInt){
             mostLikedInt = insertCsv[8];
-            mostLikedVidLink = '"https://www.youtube.com/embed/' + insertCsv[1] +'"';
+            mostLikedVidLink = '"https://www.youtube.com/embed/' + insertCsv[0] +'"';
             globalMostLikedVidServer = "";
             globalMostLikedVidServer += '<div class=\'video\'>';
             globalMostLikedVidServer += '<img src=\'' + insertCsv[11] + '\' alt=\'video thumbnail\'>';
