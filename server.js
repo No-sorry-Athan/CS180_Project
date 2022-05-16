@@ -27,8 +27,9 @@ var searchResultsServer = "";
 var csvCacheServer = [];
 var videoLink = ""
 
-var globalMostLikedVidServer = "ASDF"; // Setting up the initial mostLiked video
+var globalMostLikedVidServer = ""; // Setting up the initial mostLiked video
 var mostLikedInt = 0;
+var mostLikedVidLink = "";
 
 function getMostLiked() {
     var i = 0;
@@ -41,6 +42,7 @@ function getMostLiked() {
 
                 //store the like counter into the int value
                 mostLikedInt = parseInt(row.likes);
+                mostLikedVidLink = '"https://www.youtube.com/embed/' + row.video_id +'"';
                 //store the most liked video into the global variable
                 globalMostLikedVidServer = "";
                 globalMostLikedVidServer += '<div class=\'video\'>';
@@ -49,12 +51,13 @@ function getMostLiked() {
                 //globalMostLikedVidServer += '<form action=\"/deletevid\" method=\"post\">';
                 globalMostLikedVidServer += '<p class=\'videotitle\'>' + row.title + '</p>';
                 globalMostLikedVidServer += '<p class=\'videoinfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>';
+                globalMostLikedVidServer += '<p class=\'vidStuff\'>' + row.views + ' views / ' + row.likes + ' likes</p>';
+                // temp = row.description;
+                // temp.replaceAll('\n, <br>')
+                // globalMostLikedVidServer += '<p class=\'descrption\'Description:>' + temp + '</p>';
                 //globalMostLikedVidServer += '<button class="editbtn" type="button" name="' + i + '" value="edit" onclick="updatevideoeditor(' + i + ')">edit</button>';
                 //globalMostLikedVidServer += '<button type="submit" class=\"deletebtn' + '\"name=\"delete' + '\" value=\"' + i + '\"> delete</button>';
-                globalMostLikedVidServer += '</form>';
-                globalMostLikedVidServer += '<form action=\"/previewvideo\" method=\"post\">';
-                globalMostLikedVidServer += '<button type="submit" class="prevbtn" name="previewvideo" value=' + i + '> preview video</button>';
-                globalMostLikedVidServer += '</form>';
+                globalMostLikedVidServer += '</form>';                
                 globalMostLikedVidServer += '</div>'
                 globalMostLikedVidServer += '</div>\n';
 
@@ -379,6 +382,27 @@ app.post('/addVideo', (req, res) => {
             if (err) throw err;
           })
           console.log(insertCsv);
+
+          if (parseInt(insertCsv[8]) > mostLikedInt){
+            mostLikedInt = insertCsv[8];
+            mostLikedVidLink = '"https://www.youtube.com/embed/' + insertCsv[1] +'"';
+            //store the most liked video into the global variable
+            globalMostLikedVidServer = "";
+            globalMostLikedVidServer += '<div class=\'video\'>';
+            globalMostLikedVidServer += '<img src=\'' + insertCsv[11] + '\' alt=\'video thumbnail\'>';
+            globalMostLikedVidServer += '<div class=\'videocontent\'>';
+            //globalMostLikedVidServer += '<form action=\"/deletevid\" method=\"post\">';
+            globalMostLikedVidServer += '<p class=\'videotitle\'>' + insertCsv[2] + '</p>';
+            globalMostLikedVidServer += '<p class=\'videoinfo\'>' + insertCsv[3] + ' / ' + insertCsv[1] + '</p>';
+            //globalMostLikedVidServer += '<button class="editbtn" type="button" name="' + i + '" value="edit" onclick="updatevideoeditor(' + i + ')">edit</button>';
+            //globalMostLikedVidServer += '<button type="submit" class=\"deletebtn' + '\"name=\"delete' + '\" value=\"' + i + '\"> delete</button>';
+            globalMostLikedVidServer += '<p class=\'vidViews/Likes\'>' + insertCsv[7] + ' views / ' + insertCsv[8] + ' likes</p>';
+            globalMostLikedVidServer += '</form>';
+            
+            globalMostLikedVidServer += '</div>'
+            globalMostLikedVidServer += '</div>\n';
+            console.log("most liked")
+          }
         })
         .catch(error => {
           console.error(error)
@@ -450,8 +474,10 @@ app.post('/mostLiked', (req, res) => {
 })
 
 app.get('/mostLiked', (req, res) => {
-    getMostLiked();
-    res.render('mostLiked', { globalMostLikedVidClient: globalMostLikedVidServer, embedVid: videoLink}); // Shows the most Liked video of all time
+    res.render('mostLiked', { globalMostLikedVidClient: globalMostLikedVidServer, mostLikedVid: mostLikedVidLink}); // Shows the most Liked video of all time
 })
+
+getMostLiked();
+
 
 app.listen(port, () => console.log('Test listening on port ${' + port + '}!'));
