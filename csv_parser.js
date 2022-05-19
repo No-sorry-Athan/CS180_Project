@@ -120,14 +120,39 @@ function parse(file) {
     if (entry != "") { tempArr.push(entry); entry = ""; }
     arr.push(tempArr);
     quote = [];
-    if(r == 420) console.log(tempArr);
+    //if(r == 420) console.log(tempArr);
   }
 
-  return arr;
+  return convert(arr);
+}
+
+// var is undefined and doesnt get assigned until later
+function async_parse(file, rowFunc, closeFunc) {
+  const input = fs.createReadStream('./archive/' + file);
+    
+  var rl = readline.createInterface({input});
+  
+  rl.on('data', (row) => rowFunc());
+  //rl.on('close', () => closeFunc());
+
+  //return convert(arr);
+
+}
+
+function convert(arr) {
+  // console.log(arr);
+  if (!arr.length) return null;
+  var i = 0;
+  len = arr.length,
+    array = [];
+  for (; i < len; i++) {
+    array.push({ "video_id": arr[i][0], "trending_date": arr[i][1], "title": arr[i][2], "channel_title": arr[i][3], "category_id": arr[i][4], "publish_time": arr[i][5], "tags": arr[i][6], "views": arr[i][7], "likes": arr[i][8], "dislikes": arr[i][9], "comment_count": arr[i][10], "thumbnail_link": arr[i][11], "comments_disabled": arr[i][12], "ratings_disabled": arr[i][13], "video_error_or_removed": arr[i][14], "description": arr[i][15] });
+  }
+  //console.log(array[1].title);
+  return array;
 }
 
 module.exports = {
-  csv_parser,
-  csv_parser2,
-  parse
+  parse,
+  async_parse
 }

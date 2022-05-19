@@ -8,7 +8,7 @@ const port = 3000;
 
 const fs = require('fs');
 const csv = require('csv-parser');
-const { csv_parser, csv_parser2, parse } = require('./csv_parser');
+const { csv_parser, csv_parser2, parse, async_parse } = require('./csv_parser');
 
 const { toLower, split } = require('lodash');
 
@@ -28,39 +28,12 @@ var searchResultsServer = "";
 var csvCacheServer = [];
 var videoLink = "";
 var mostLiked;
-var thing = parse('USVideos.csv')
-//console.log(thing);
-for (var iterator = 0; iterator < thing.length; iterator++){
-  var myJSON = arrayToJSON(thing[iterator]);
 
-  if (mostLiked == undefined || parseInt(myJSON.likes) > parseInt(mostLiked.likes)) {
-   mostLiked = myJSON;
+var csvArr = parse('USVideos.csv');
+for (var iterator = 0; iterator < csvArr.length; iterator++) {
+  if (mostLiked == undefined || parseInt(csvArr[iterator].likes) > parseInt(mostLiked.likes)) {
+    mostLiked = csvArr[iterator];
   }
-}
-
-function arrayToJSON(arr) {
-  let d = arr; 
-  let myJSON = '{"video_id":"' + d[0] + '",';
-  myJSON += '"trending_date":"' + d[1] + '",';
-  title = '"' + d[2] + '"'
-
-  myJSON += '"title":"' + title.replace(new RegExp('"', 'g'), '') + '",';
-  myJSON += '"channel_title":"' + d[3].replace(new RegExp('"', 'g'), '') + '",';
-  myJSON += '"category_id":"' + d[4] + '",';
-  myJSON += '"publish_time":"' + d[5] + '",';
-  myJSON += '"tags":"' + d[6].replace(new RegExp('"', 'g'), '') + '",';
-
-  myJSON += '"views":"' + d[7] + '",';
-  myJSON += '"likes":"' + d[8] + '",';
-  myJSON += '"dislikes":"' + d[9] + '",';
-  myJSON += '"comment_count":"' + d[10] + '",';
-  myJSON += '"thumbnail_link":"' + d[11] + '",';
-  myJSON += '"comments_disabled":"' + d[12] + '",';
-  myJSON += '"ratings_disabled":"' + d[13] + '",';
-  myJSON += '"video_error_or_removed":"' + d[14] + '",';
-
-  myJSON += '"description":"' + d[15].replace(new RegExp('"', 'g'), '') + '"}';
-  return JSON.parse(myJSON);
 }
 
 app.get('/', (req, res) => {
@@ -117,42 +90,20 @@ app.post('/search', (req, res) => {
   searchResultsServer = "";
   csvCacheServer = [];
   videoLink = "";
-  i = 0
   if (query == null || query == "") { res.redirect('back'); return; }
 
-  //test
-  var arr = parse('USVideos.csv');
-  //test
+  csvArr = parse('USVideos.csv');
 
-  //var jerry = csv_parser2('USVideos.csv');
-    function change(match){
-    return match.replace(/,/g, '');
-  }
-  const regex = /("(.|[\r\n])*?"|[^",\s]+)(?=\s*,|\s*$)|($)/g
-
-  const input = fs.readFileSync('./archive/USVideos.csv', { encoding: "utf-8"});
-  // temp = input.replace(/\$[0-9]*,*[0-9]*,*[0-9]+/g, change) 
-  temp = input.split('"\r\n')
-  // console.log(temp)
-  for (var toherTemp = 1; toherTemp < temp.length; toherTemp++){
-    var d = temp[toherTemp].match(regex);
-    if (d == undefined){
-      console.log(toherTemp)
-      break;
-    }
-    console.log(d)
-    var myJSON = arrayToJSON(d);
-    
-    if (toLower(myJSON.title).includes(toLower(query))) {
-      csvCacheServer.push(myJSON);
-      //console.log(myJSON);
+  for (let iterator = 1; iterator < csvArr.length; iterator++) {
+    if (toLower(csvArr[iterator].title).includes(toLower(query))) {
+      csvCacheServer.push(csvArr[iterator]);
 
       searchResultsServer += '<div class=\'video\'>';
-      searchResultsServer += '<img src=\'' + myJSON.thumbnail_link + '\' alt=\'Video Thumbnail\'>';
+      searchResultsServer += '<img src=\'' + csvArr[iterator].thumbnail_link + '\' alt=\'Video Thumbnail\'>';
       searchResultsServer += '<div class=\'videoContent\'>';
       searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
-      searchResultsServer += '<p class=\'videoTitle\'>' + myJSON.title + '</p>';
-      searchResultsServer += '<p class=\'videoInfo\'>' + myJSON.channel_title + ' / ' + myJSON.trending_date + '</p>';
+      searchResultsServer += '<p class=\'videoTitle\'>' + csvArr[iterator].title + '</p>';
+      searchResultsServer += '<p class=\'videoInfo\'>' + csvArr[iterator].channel_title + ' / ' + csvArr[iterator].trending_date + '</p>';
       searchResultsServer += '<button class="editBtn" type="button" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
       searchResultsServer += '<button type="submit" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button>';
       searchResultsServer += '</form>';
@@ -166,124 +117,7 @@ app.post('/search', (req, res) => {
     }
   }
 
-  res.redirect('back')
-  
-  //var jerry = csv_parser('USVideos.csv');
-  // var d = Array();
-  // var flag = 0;
-  // function change(match){
-  //   return match.replace(/,/g, '');
-  // }
-  // console.log("hi");
-  // jerry.on('data', (row) => {
-  //   // row = row.replace(/\$[0-9]*,*[0-9]*,*[0-9]+/g, change) 
-  //   // if (flag == 0)
-  //   // console.log(row)
-  //   var bruh = row.split('"\r\n')
-  //   console.log(bruh)
-  //   console.log('bruh')
-  //   console.log(bruh.length)
-  //   for (var temp = 0; temp < bruh.length; temp++){
-  //     // console.log(bruh[temp])
-  //     var d = bruh[temp].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-  //     var myJSON = arrayToJSON(d);
-  //     if (toLower(myJSON.title).includes(toLower(query))) {
-  //       csvCacheServer.push(myJSON);
-  //       console.log(myJSON);
-  
-  //       searchResultsServer += '<div class=\'video\'>';
-  //       searchResultsServer += '<img src=\'' + myJSON.thumbnail_link + '\' alt=\'Video Thumbnail\'>';
-  //       searchResultsServer += '<div class=\'videoContent\'>';
-  //       searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
-  //       searchResultsServer += '<p class=\'videoTitle\'>' + myJSON.title + '</p>';
-  //       searchResultsServer += '<p class=\'videoInfo\'>' + myJSON.channel_title + ' / ' + myJSON.trending_date + '</p>';
-  //       searchResultsServer += '<button class="editBtn" type="button" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
-  //       searchResultsServer += '<button type="submit" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button>';
-  //       searchResultsServer += '</form>';
-  //       searchResultsServer += '<form action=\"/previewVideo\" method=\"POST\">';
-  //       searchResultsServer += '<button type="submit" class="prevBtn" name="previewVideo" value=' + i + '> Preview Video</button>';
-  //       searchResultsServer += '</form>';
-  //       searchResultsServer += '</div>'
-  //       searchResultsServer += '</div>\n';
-  
-  //       i += 1;
-  //     }
-  //   }
-  //   var d = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-  //   // d = row.split('","')
-  //   // if (flag == 0)
-  //   // console.log(d)
-
-
-  //   // if(d[0][0] == '\\' && d[0][1] == 'n'){
-  //   //   flag = result.length
-  //   //   for(var j = 0; j < d.length; j++){
-  //   //     d[flag - 1].push(d[j])
-  //   //   }
-  //   // }
-  //   // else{
-  //   //   flag++;
-  //   // }
-  //   //if else
-
-  //   // var myJSON = arrayToJSON(d);
-  //   // //console.log(myJSON);
-
-  //   // // if (i == 2) { console.log(myJSON); } i++;
-  //   // if (toLower(myJSON.title).includes(toLower(query))) {
-  //   //   csvCacheServer.push(myJSON);
-  //   //   console.log(myJSON);
-
-  //   //   searchResultsServer += '<div class=\'video\'>';
-  //   //   searchResultsServer += '<img src=\'' + myJSON.thumbnail_link + '\' alt=\'Video Thumbnail\'>';
-  //   //   searchResultsServer += '<div class=\'videoContent\'>';
-  //   //   searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
-  //   //   searchResultsServer += '<p class=\'videoTitle\'>' + myJSON.title + '</p>';
-  //   //   searchResultsServer += '<p class=\'videoInfo\'>' + myJSON.channel_title + ' / ' + myJSON.trending_date + '</p>';
-  //   //   searchResultsServer += '<button class="editBtn" type="button" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
-  //   //   searchResultsServer += '<button type="submit" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button>';
-  //   //   searchResultsServer += '</form>';
-  //   //   searchResultsServer += '<form action=\"/previewVideo\" method=\"POST\">';
-  //   //   searchResultsServer += '<button type="submit" class="prevBtn" name="previewVideo" value=' + i + '> Preview Video</button>';
-  //   //   searchResultsServer += '</form>';
-  //   //   searchResultsServer += '</div>'
-  //   //   searchResultsServer += '</div>\n';
-
-  //   //   i += 1;
-  //   // }
-  // })
-  // jerry.on('close', () => {
-  //   res.redirect('back');
-  // })
-
-  // fs.createReadStream('./archive/USVideos.csv')
-  //   .pipe(csv())
-  //   .on('data', (row) => {
-  //     if (toLower(row.title).includes(toLower(query))) {
-  //       csvCacheServer.push(row);
-  //       console.log(row);
-
-  //       searchResultsServer += '<div class=\'video\'>';
-  //       searchResultsServer += '<img src=\'' + row.thumbnail_link + '\' alt=\'Video Thumbnail\'>';
-  //       searchResultsServer += '<div class=\'videoContent\'>';
-  //       searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
-  //       searchResultsServer += '<p class=\'videoTitle\'>' + row.title + '</p>';
-  //       searchResultsServer += '<p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>';
-  //       searchResultsServer += '<button class="editBtn" type="button" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
-  //       searchResultsServer += '<button type="submit" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button>';
-  //       searchResultsServer += '</form>';
-  //       searchResultsServer += '<form action=\"/previewVideo\" method=\"POST\">';
-  //       searchResultsServer += '<button type="submit" class="prevBtn" name="previewVideo" value=' + i +'> Preview Video</button>';
-  //       searchResultsServer += '</form>';
-  //       searchResultsServer += '</div>'
-  //       searchResultsServer += '</div>\n';
-
-  //       i += 1;
-  //     }
-  //   })
-  //   .on('end', () => {
-  //     res.redirect('back');
-  //   });
+  res.redirect('back');
 });
 
 
