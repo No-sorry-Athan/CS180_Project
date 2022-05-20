@@ -81,12 +81,8 @@ function getMostLiked() {
 };
 
 app.get('/', (req, res) => {
-<<<<<<< HEAD
+  getMostLiked();
   res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer), embedVid: videoLink });
-=======
-    getMostLiked();
-  res.render('home', { title: "YT Analysis", searchResultsClient: searchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer), embedVid : videoLink });
->>>>>>> master
 });
 
 //making a new page for reliable videos
