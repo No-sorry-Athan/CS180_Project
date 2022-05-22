@@ -29,13 +29,6 @@ var csvCacheServer = [];
 var videoLink = "";
 var mostLiked;
 
-var csvArr = parse('USVideos.csv');
-for (var iterator = 0; iterator < csvArr.length; iterator++) {
-  if (mostLiked == undefined || parseInt(csvArr[iterator].likes) > parseInt(mostLiked.likes)) {
-    mostLiked = csvArr[iterator];
-  }
-}
-
 
 var globalMostLikedVidServer = ""; // Setting up the initial mostLiked video
 var mostLikedInt = 0;
@@ -301,7 +294,6 @@ app.post('/editVideo', (req, res) => {
       }
     }
   }
-  console.log(iterator);
 
   let appendString = req.body.video_id + ',' + req.body.trending_date + ',' + '"' + req.body.title + '"' + ',' + '"' + req.body.channel_title + '"' + ',' + req.body.category_id + ',' + req.body.publish_time + ',' + '"' + req.body.tags + '"' + ',' + req.body.views + ',' + req.body.likes + ',' + req.body.dislikes + ',' + req.body.comment_count + ',' + req.body.thumbnail_link + ',' + req.body.comments_disabled + ',' + req.body.ratings_disabled + ',' + req.body.video_error_or_removed + ',' + '"' + req.body.description + '"' + '\r\n';
   fs.writeFileSync('./archive/USVideos.csv', newCSV);
@@ -378,7 +370,8 @@ app.post('/addVideo', (req, res) => {
               break;
             type = typeof (currentVal)
 
-            if (type == typeof ("")) {
+            if (i == 2 || i == 3 || i == 15) {
+              // console.log(currentVal)
               csvString += "\"" + currentVal.replaceAll('\n', '\\n') + "\"";
             }
             else if (type == typeof (1)) {
@@ -389,9 +382,20 @@ app.post('/addVideo', (req, res) => {
                 currentTag = currentVal[j];
                 if (currentTag == undefined)
                   break;
-                csvString += "\"" + currentTag + "\"" + "|"
+                if (j == 0){
+                  csvString += "\"" + currentTag + "|"
+                }
+                else if (j == currentVal.length - 1){
+                  csvString += "\"" + currentTag + "\"\"" + "|"
+                }
+                else{
+                  csvString += "\"" + currentTag + "\"" + "|"
+                }
               }
               csvString = csvString.substring(0, csvString.length - 1);
+            }
+            else{
+              csvString += currentVal.replaceAll('\n', '\\n');
             }
             csvString += ",";
           }
