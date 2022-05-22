@@ -18,22 +18,25 @@
 <div id="editDialog" title="Edit Video Information" style="display:none">
     <form action="/editVideo" method="POST">
         <input style="display:none" id="editIndex" name="editIndex" value="-1"></input>
-        <div style="display:flex"><label>Video ID</label>             <input id="videoEdit0" type="text" name="video_id"></div>
-        <div style="display:flex"><label>Trending Date</label>        <input id="videoEdit1" type="text" name="trending_date"></div>
-        <div style="display:flex"><label>Title</label>                <input id="videoEdit2" type="text" name="title"></div>
-        <div style="display:flex"><label>Channel Title</label>        <input id="videoEdit3" type="text" name="channel_title"></div>
-        <div style="display:flex"><label>Category ID</label>          <input id="videoEdit4" type="text" name="category_id"></div>
-        <div style="display:flex"><label>Publish Time</label>         <input id="videoEdit5" type="text" name="publish_time"></div>
-        <div style="display:flex"><label>Tags</label>                 <input id="videoEdit6" type="text" name="tags"></div>
-        <div style="display:flex"><label>Views</label>                <input id="videoEdit7" type="text" name="views"></div>
-        <div style="display:flex"><label>Likes</label>                <input id="videoEdit8" type="text" name="likes"></div>
-        <div style="display:flex"><label>Dislikes</label>             <input id="videoEdit9" type="text" name="dislikes"></div>
-        <div style="display:flex"><label>Comment Count</label>        <input id="videoEdit10" type="text" name="comment_count"></div>
-        <div style="display:flex"><label>Thumbnail Link</label>       <input id="videoEdit11" type="text" name="thumbnail_link"></div>
-        <div style="display:flex"><label>Comments Disabled</label>    <input id="videoEdit12" type="text" name="comments_disabled"></div>
-        <div style="display:flex"><label>Ratings Disabled</label>     <input id="videoEdit13" type="text" name="ratings_disabled"></div>
-        <div style="display:flex"><label>Video Error/Removed</label>  <input id="videoEdit14" type="text" name="video_error_or_removed"></div>
-        <div style="display:flex"><label>Description</label>          <input id="videoEdit15" type="text" name="description"></div>
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px">
+            <div class="dialogInputDiv"><label class="dialogInputLabel">Video ID</label>             <input id="videoEdit0" class="dialogInput" type="text" name="video_id"></div>
+            {{!-- <div style="display:flex; justify-content: space-around;"><label>Video ID</label>             <input id="videoEdit0" type="text" name="video_id"></div> --}}
+            <div class="dialogInputDiv"><label class="dialogInputLabel">Trending Date</label>        <input id="videoEdit1" class="dialogInput" type="text" name="trending_date"></div>
+            <div class="dialogInputDiv"><label class="dialogInputLabel">Title</label>                <input id="videoEdit2" class="dialogInput" type="text" name="title"></div>
+            <div class="dialogInputDiv"><label class="dialogInputLabel">Channel Title</label>        <input id="videoEdit3" class="dialogInput" type="text" name="channel_title"></div>
+            <div class="dialogInputDiv"><label class="dialogInputLabel">Category ID</label>          <input id="videoEdit4" class="dialogInput" type="text" name="category_id"></div>
+            <div class="dialogInputDiv"><label class="dialogInputLabel">Publish Time</label>         <input id="videoEdit5" class="dialogInput" type="text" name="publish_time"></div>
+            <div class="dialogInputDiv"><label class="dialogInputLabel">Tags</label>                 <input id="videoEdit6" class="dialogInput" type="text" name="tags"></div>
+            <div class="dialogInputDiv"><label class="dialogInputLabel">Views</label>                <input id="videoEdit7" class="dialogInput" type="text" name="views"></div>
+            <div class="dialogInputDiv"><label class="dialogInputLabel">Likes</label>                <input id="videoEdit8" class="dialogInput" type="text" name="likes"></div>
+            <div class="dialogInputDiv"><label class="dialogInputLabel">Dislikes</label>             <input id="videoEdit9" class="dialogInput" type="text" name="dislikes"></div>
+            <div class="dialogInputDiv"><label class="dialogInputLabel">Comment Count</label>        <input id="videoEdit10" class="dialogInput" type="text" name="comment_count"></div>
+            <div class="dialogInputDiv"><label class="dialogInputLabel">Thumbnail Link</label>       <input id="videoEdit11" class="dialogInput" type="text" name="thumbnail_link"></div>
+            <div class="dialogInputDiv"><label class="dialogInputLabel">Comments Disabled</label>    <input id="videoEdit12" class="dialogInput" type="text" name="comments_disabled"></div>
+            <div class="dialogInputDiv"><label class="dialogInputLabel">Ratings Disabled</label>     <input id="videoEdit13" class="dialogInput" type="text" name="ratings_disabled"></div>
+            <div class="dialogInputDiv"><label class="dialogInputLabel">Video Error/Removed</label>  <input id="videoEdit14" class="dialogInput" type="text" name="video_error_or_removed"></div>
+            <div class="dialogInputDiv" style="width:100%;"><label class="dialogInputLabel">Description</label>          <input id="videoEdit15" class="dialogInput" style="width:100%;" type="text" name="description"></div>
+        </div>
         <input type="submit" name="save" value="Save">
     </form>
 </div>
@@ -56,7 +59,18 @@
 
         $('#homeNav').css("background-color", $(':root').css("--nav-selected"));  
 
-        $('#editDialog').dialog({ autoOpen: false, modal: true });
+        // fixes close btn on dialog
+        var bootstrapButton = $.fn.button.noConflict() // return $.fn.button to previously assigned value
+        $.fn.bootstrapBtn = bootstrapButton            // give $().bootstrapBtn the Bootstrap functionality
+
+        $('#editDialog').dialog({ autoOpen: false, closeText: 'X', modal: true, title: 'Edit Video', width: '40%' });
+
+        $('.dialogInputDiv').click(function(e) {
+            $('.dialogInputDiv').css('border', '2px solid lightgrey');
+            $('.dialogInputLabel').css('color', '');
+            $(this).css('border', '2px solid teal');
+            $(this.firstChild).css('color', 'teal');
+        });
         
         $('.searchBtn').click(() => {
             $('.loadingIndicator').show();
@@ -90,4 +104,3 @@
         $('#videoEdit15').attr('value', cache[index].description);
     }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
