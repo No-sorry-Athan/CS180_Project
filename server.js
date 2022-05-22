@@ -59,16 +59,9 @@ function getMostLiked() {
       globalMostLikedVidServer += '<div class=\'video\'>';
       globalMostLikedVidServer += '<img src=\'' + csvArr[iterator].thumbnail_link + '\' alt=\'video thumbnail\'>';
       globalMostLikedVidServer += '<div class=\'videocontent\'>';
-      //globalMostLikedVidServer += '<form action=\"/deletevid\" method=\"post\">';
       globalMostLikedVidServer += '<p class=\'videotitle\'>' + csvArr[iterator].title + '</p>';
       globalMostLikedVidServer += '<p class=\'videoinfo\'>' + csvArr[iterator].channel_title + ' / ' + csvArr[iterator].trending_date + '</p>';
       globalMostLikedVidServer += '<p class=\'vidStuff\'>' + csvArr[iterator].views + ' views / ' + csvArr[iterator].likes + ' likes</p>';
-      // temp = csvArr[iterator].description;
-      // temp.replaceAll('\n, <br>')
-      // globalMostLikedVidServer += '<p class=\'descrption\'Description:>' + temp + '</p>';
-      //globalMostLikedVidServer += '<button class="editbtn" type="button" name="' + i + '" value="edit" onclick="updatevideoeditor(' + i + ')">edit</button>';
-      //globalMostLikedVidServer += '<button type="submit" class=\"deletebtn' + '\"name=\"delete' + '\" value=\"' + i + '\"> delete</button>';
-      // globalMostLikedVidServer += '</form>';
       globalMostLikedVidServer += '</div>'
       globalMostLikedVidServer += '</div>\n';
     }
@@ -130,55 +123,37 @@ app.get('/public/:file', (req, res) => {
   });
 });
 
-app.post('/deleteVid', (req, res) => { //Occurs when user presses the delete button on a searched video
-  //Get the video-id and trending-date of the video I want to delete
-  //test
-  var newCSV = ""; //new string to make the new CSV without the entry we delete
-  // console.log("Hello world ", req.body);
+app.post('/deleteVid', (req, res) => {
+  var newCSV = ""; 
   deleteIndex = req.body.Delete;
   mostLikedInt = 0;
-  // console.log(deleteIndex);
 
-  newCSV += "video_id,trending_date,title,channel_title,category_id,publish_time,tags,views,likes,dislikes,comment_count,thumbnail_link,comments_disabled,ratings_disabled,video_error_or_removed,description\n";
-  fs.createReadStream('./archive/USVideos.csv')
-    .pipe(csv())
-    .on('data', (row) => {
-      if (row.trending_date == csvCacheServer[deleteIndex].trending_date && row.title == csvCacheServer[deleteIndex].title) { //if this is the vid we want to delete, don't add it to the string
-        //do nothing
-        console.log(row);
-        console.log(typeof (row));
-      } else { //store all other row like a normal CSV
-        newCSV += row.video_id + ',' + row.trending_date + ',' + '"' + row.title + '"' + ',' + '"' + row.channel_title + '"' + ',' + row.category_id + ',' + row.publish_time + ',' + '"' + row.tags + '"' + ',' + row.views + ',' + row.likes + ',' + row.dislikes + ',' + row.comment_count + ',' + row.thumbnail_link + ',' + row.comments_disabled + ',' + row.ratings_disabled + ',' + row.video_error_or_removed + ',' + '\"' + row.description + '\"' + '\r\n';
-        if (row.likes > mostLikedInt) {
-          mostLikedInt = parseInt(row.likes);
-          mostLikedVidLink = '"https://www.youtube.com/embed/' + row.video_id + '"';
-          //store the most liked video into the global variable
-          globalMostLikedVidServer = "";
-          globalMostLikedVidServer += '<div class=\'video\'>';
-          globalMostLikedVidServer += '<img src=\'' + row.thumbnail_link + '\' alt=\'video thumbnail\'>';
-          globalMostLikedVidServer += '<div class=\'videocontent\'>';
-          //globalMostLikedVidServer += '<form action=\"/deletevid\" method=\"post\">';
-          globalMostLikedVidServer += '<p class=\'videotitle\'>' + row.title + '</p>';
-          globalMostLikedVidServer += '<p class=\'videoinfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>';
-          globalMostLikedVidServer += '<p class=\'vidStuff\'>' + row.views + ' views / ' + row.likes + ' likes</p>';
-          // temp = row.description;
-          // temp.replaceAll('\n, <br>')
-          // globalMostLikedVidServer += '<p class=\'descrption\'Description:>' + temp + '</p>';
-          //globalMostLikedVidServer += '<button class="editbtn" type="button" name="' + i + '" value="edit" onclick="updatevideoeditor(' + i + ')">edit</button>';
-          //globalMostLikedVidServer += '<button type="submit" class=\"deletebtn' + '\"name=\"delete' + '\" value=\"' + i + '\"> delete</button>';
-          globalMostLikedVidServer += '</form>';
-          globalMostLikedVidServer += '</div>'
-          globalMostLikedVidServer += '</div>\n';
-          // i += 1;
-        }
-        // console.log('hi ', i);
+  newCSV += "video_id,trending_date,title,channel_title,category_id,publish_time,tags,views,likes,dislikes,comment_count,thumbnail_link,comments_disabled,ratings_disabled,video_error_or_removed,description\"\r\n";
+  csvArr = parse('USVideos.csv');
+
+  for (let iterator = 1; iterator < csvArr.length; iterator++) {
+    if (csvArr[iterator].trending_date == csvCacheServer[deleteIndex].trending_date && csvArr[iterator].title == csvCacheServer[deleteIndex].title) { //if this is the vid we want to delete, don't add it to the string
+    } else {
+      newCSV += csvArr[iterator].video_id + ',' + csvArr[iterator].trending_date + ',' + '"' + csvArr[iterator].title + '"' + ',' + '"' + csvArr[iterator].channel_title + '"' + ',' + csvArr[iterator].category_id + ',' + csvArr[iterator].publish_time + ',' + '"' + csvArr[iterator].tags + '"' + ',' + csvArr[iterator].views + ',' + csvArr[iterator].likes + ',' + csvArr[iterator].dislikes + ',' + csvArr[iterator].comment_count + ',' + csvArr[iterator].thumbnail_link + ',' + csvArr[iterator].comments_disabled + ',' + csvArr[iterator].ratings_disabled + ',' + csvArr[iterator].video_error_or_removed + ',' + '"' + csvArr[iterator].description + '"' + '\r\n';
+      if (parseInt(csvArr[iterator].likes) > mostLikedInt) {
+        mostLikedInt = parseInt(csvArr[iterator].likes);
+        mostLikedVidLink = '"https://www.youtube.com/embed/' + csvArr[iterator].video_id + '"';
+        globalMostLikedVidServer = "";
+        globalMostLikedVidServer += '<div class=\'video\'>';
+        globalMostLikedVidServer += '<img src=\'' + csvArr[iterator].thumbnail_link + '\' alt=\'video thumbnail\'>';
+        globalMostLikedVidServer += '<div class=\'videocontent\'>';
+        globalMostLikedVidServer += '<p class=\'videotitle\'>' + csvArr[iterator].title + '</p>';
+        globalMostLikedVidServer += '<p class=\'videoinfo\'>' + csvArr[iterator].channel_title + ' / ' + csvArr[iterator].trending_date + '</p>';
+        globalMostLikedVidServer += '<p class=\'vidStuff\'>' + csvArr[iterator].views + ' views / ' + csvArr[iterator].likes + ' likes</p>';
+        globalMostLikedVidServer += '</form>';
+        globalMostLikedVidServer += '</div>'
+        globalMostLikedVidServer += '</div>\n';
       }
-    })
-    .on('end', () => {
+    }
+  }
+  fs.writeFileSync('./archive/USVideos.csv', newCSV);
+  res.redirect('back')
 
-      fs.writeFileSync('./archive/USVideos.csv', newCSV);
-      res.redirect('back');
-    })
 });
 
 app.post('/search', (req, res) => {
@@ -212,6 +187,7 @@ app.post('/search', (req, res) => {
 
       i += 1;
     }
+    
   }
 
   res.redirect('back');
