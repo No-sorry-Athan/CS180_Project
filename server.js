@@ -593,38 +593,37 @@ app.get('/analytics/trendline', (req, res) => {
   vidName = '';
   if (searchVideoTrend == "" || searchVideoTrend == undefined) return;
   var paff = './archive/' + region + 'Videos.csv';
-  fs.createReadStream(paff)
-    .pipe(csv())
-    .on('data', (row) => {
-      if (toLower(row.video_id).includes(toLower(searchVideoTrend))) {
-        vidName = row.title;
-        csvCacheAnalytics.push(row);
-        console.log(csvCacheAnalytics)
-      }
-    })
-    .on('end', () => {
-      csvString = ''
+
+  csvArr = parse(region + 'Videos.csv');
+
+  for (let iterator = 1; iterator < csvArr.length; iterator++) {
+    if (toLower(csvArr[iterator].video_id).includes(toLower(searchVideoTrend))) {
+      vidName = csvArr[iterator].title;
+      csvCacheAnalytics.push(csvArr[iterator]);
       console.log(csvCacheAnalytics)
-      csvString += "{name: 'Likes', points:[\n"
-      for (i = 0; i < csvCacheAnalytics.length; i++) {
-        currentRow = csvCacheAnalytics[i];
-        csvString += "[" + "'" + currentRow.trending_date + "', " + currentRow.likes + "],"
-      }
-      csvString = csvString.substring(0, csvString.length - 1)
-      csvString += "]},\n"
-      csvString += "{name: 'Dislikes', points:[\n"
-      for (i = 0; i < csvCacheAnalytics.length; i++) {
-        currentRow = csvCacheAnalytics[i]
-        csvString += "[" + "'" + currentRow.trending_date + "', " + currentRow.dislikes + "],"
-      }
-      csvString = csvString.substring(0, csvString.length - 1)
-      csvString += "]}\n"
+    }
+  }
 
-      console.log(csvString);
-      passUpString = csvString;
+  csvString = ''
+  console.log(csvCacheAnalytics)
+  csvString += "{name: 'Likes', points:[\n"
+  for (i = 0; i < csvCacheAnalytics.length; i++) {
+    currentRow = csvCacheAnalytics[i];
+    csvString += "[" + "'" + currentRow.trending_date + "', " + currentRow.likes + "],"
+  }
+  csvString = csvString.substring(0, csvString.length - 1)
+  csvString += "]},\n"
+  csvString += "{name: 'Dislikes', points:[\n"
+  for (i = 0; i < csvCacheAnalytics.length; i++) {
+    currentRow = csvCacheAnalytics[i]
+    csvString += "[" + "'" + currentRow.trending_date + "', " + currentRow.dislikes + "],"
+  }
+  csvString = csvString.substring(0, csvString.length - 1)
+  csvString += "]}\n"
 
-      res.redirect('back');
-    });
+  console.log(csvString);
+  passUpString = csvString;
+  res.redirect('back');
 });
 
 app.post('/mostLiked', (req, res) => {
