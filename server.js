@@ -27,15 +27,6 @@ var options = { dotfiles: 'ignore', etag: false, extensions: ['htm', 'html'], in
 var searchResultsServer = "";
 var csvCacheServer = [];
 var videoLink = "";
-var mostLiked;
-
-var csvArr = parse('USVideos.csv');
-for (var iterator = 0; iterator < csvArr.length; iterator++) {
-  if (mostLiked == undefined || parseInt(csvArr[iterator].likes) > parseInt(mostLiked.likes)) {
-    mostLiked = csvArr[iterator];
-  }
-}
-
 
 var globalMostLikedVidServer = ""; // Setting up the initial mostLiked video
 var mostLikedInt = 0;
