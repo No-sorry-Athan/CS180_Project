@@ -131,9 +131,7 @@ function parse(file) {
 // var is undefined and doesnt get assigned until later
 function async_parse(file, rowFunc, closeFunc) {
   const input = fs.createReadStream('./archive/' + file);
-    
   var rl = readline.createInterface({input});
-  
   rl.on('data', (row) => rowFunc());
   //rl.on('close', () => closeFunc());
 
@@ -148,8 +146,9 @@ function convert(arr) {
   len = arr.length,
     array = [];
   for (; i < len; i++) {
-    if(arr[i] != undefined) { console.log(arr[i][0]); console.log(i) }
-    array.push({ "video_id": arr[i][0], "trending_date": arr[i][1], "title": arr[i][2].substring(1, arr[i][2].length - 1), "channel_title": arr[i][3].substring(1, arr[i][3].length - 1), "category_id": arr[i][4], "publish_time": arr[i][5], "tags": arr[i][6].substring(1, arr[i][6].length - 1), "views": arr[i][7], "likes": arr[i][8], "dislikes": arr[i][9], "comment_count": arr[i][10], "thumbnail_link": arr[i][11], "comments_disabled": arr[i][12], "ratings_disabled": arr[i][13], "video_error_or_removed": arr[i][14], "description": arr[i][15].substring(1, arr[i][15].length) });
+    if (arr[i].length != 0) {
+      array.push({ "video_id": arr[i][0], "trending_date": arr[i][1], "title": arr[i][2].substring(1, arr[i][2].length - 1), "channel_title": arr[i][3].substring(1, arr[i][3].length - 1), "category_id": arr[i][4], "publish_time": arr[i][5], "tags": arr[i][6].substring(1, arr[i][6].length - 1), "views": arr[i][7], "likes": arr[i][8], "dislikes": arr[i][9], "comment_count": arr[i][10], "thumbnail_link": arr[i][11], "comments_disabled": arr[i][12], "ratings_disabled": arr[i][13], "video_error_or_removed": arr[i][14], "description": arr[i][15].substring(1, arr[i][15].length) });
+    }
   }
   console.log(i);
   return array;
@@ -160,4 +159,4 @@ module.exports = {
   async_parse
 }
 
-parse('USVideos.csv');
+//parse('USVideos.csv');
