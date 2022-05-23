@@ -174,94 +174,78 @@ app.post('/searchReliable', (req, res) => {
 
   i = 0
   if (query == null || query == "") { res.redirect('back'); return; } //if searching nothing, dont show anything
-  fs.createReadStream('./archive/USVideos.csv') //parse through the CSV, gather vids with the keyWords,
-    .pipe(csv())                                //calculate like to dislike ratio for each video and sort it from most to least 1-10
-    .on('data', (row) => {
-      if (toLower(row.title).includes(toLower(query))) {
-        csvCacheServer.push(row);
-        console.log(row);
-        arrTemp.push(row); //first store all rows quiried into the array
 
-        // searchResultsServer += '<div class=\'video\'>'; 
-        // searchResultsServer += '<img src=\'' + row.thumbnail_link + '\' alt=\'Video Thumbnail\'>'; 
-        // searchResultsServer += '<div class=\'videoContent\'>';
-        // searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
-        // searchResultsServer += '<p class=\'videoTitle\'>' + row.title + '</p>'; 
-        // searchResultsServer += '<p class=\'videoInfo\'>' + row.channel_title + ' / ' + row.trending_date + '</p>'; 
-        // searchResultsServer += '<button type=\"delete\" class=\"deleteBtn' +'\"name=\"Delete' + '\" value=\"'+ i+ '\"> Delete</button> \n';
-        // searchResultsServer += '</form>';
-        // searchResultsServer += '<button class="editBtn" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
-        // searchResultsServer += '</div>'
-        // searchResultsServer += '</div>\n';
+  csvArr = parse('USVideos.csv');
 
-        // i+=1;
+  for(let iterator = 1; iterator < csvArr.length; iterator++) {
+    if (toLower(csvArr[iterator].title).includes(toLower(query))){
+      csvCacheServer.push(csvArr[iterator]);
+      arrTemp.push(csvArr[iterator]); //store quiried rows into array
+    }
+  }
+
+  for (let a = 0; a < arrTemp.length - 1; a++) { //find the top ratiod videos of each title with the keyword
+    arrTemp2 = []; //reset arrTemp2
+    flag = false; //reset flag
+    ratio = 0; //reset ratio for next cycle
+    ind = 0; //reset
+
+    if (a == 0) {
+      titleTemp = arrTemp[0].title; //set up for the initial vid
+      arrTemp2.push(arrTemp[0]);
+      titlesExplored.push(arrTemp[0].title); //stores the initial title
+      flag = true;
+    } else if (a > 0) {
+      if (titlesExplored.includes(arrTemp[a].title)) { //sees if current video has already been searched through & its top vid was found
+        flag = false;
+      } else {
+        titleTemp = arrTemp[a].title;
+        arrTemp2.push(arrTemp[a]);
+        titlesExplored.push(arrTemp[a].title);
+        flag = true;
       }
-    })
-    .on('end', () => { //all videos are in arrTemp at this point, now look for the most reliable ones (best ratios)
-      for (let a = 0; a < arrTemp.length - 1; a++) { //find the top ratiod videos of each title with the keyword
-        arrTemp2 = []; //reset arrTemp2
-        flag = false; //reset flag
-        ratio = 0; //reset ratio for next cycle
-        ind = 0; //reset
+    }
 
-        if (a == 0) {
-          titleTemp = arrTemp[0].title; //set up for the initial vid
-          arrTemp2.push(arrTemp[0]);
-          titlesExplored.push(arrTemp[0].title); //stores the initial title
-          flag = true;
-        } else if (a > 0) {
-          if (titlesExplored.includes(arrTemp[a].title)) { //sees if current video has already been searched through & its top vid was found
-            flag = false;
-          } else {
-            titleTemp = arrTemp[a].title;
-            arrTemp2.push(arrTemp[a]);
-            titlesExplored.push(arrTemp[a].title);
-            flag = true;
-          }
-        }
-
-        if (flag) { //flag to search through arrTemp and find all videos with the same title, also meaning we have a new video title to use
-          for (let b = a + 1; b < arrTemp.length; b++) {
-            if (titleTemp == arrTemp[b].title) { //if same title, add it to arrTemp2, else do nothing
-              arrTemp2.push(arrTemp[b]);
-            }
-          }
-          //now go through the compiled arrTemp2 with all video instances of same title and find highest ratio
-          for (let c = 0; c < arrTemp2.length; c++) {
-            if (ratio < (arrTemp2[c].likes / arrTemp2[c].dislikes)) {
-              ratio = (arrTemp2[c].likes / arrTemp2[c].dislikes);//new highest ratio
-              ind = c;
-            }
-          }
-          highestRatioArr.push(arrTemp2[ind]); //store the highest ratio vid
-        }
-      } //finding the top ratiod videos of each title with the keyword
-
-      //sort the videos by ratio (like/dislike) descending order
-      highestRatioArr.sort((a, b) => {
-        return (b.likes / b.dislikes) - (a.likes / a.dislikes);
-      });
-
-      for (let d = 0; d < 10; d++) { //now display the top 10 videos 
-        if (highestRatioArr[d] != undefined) {
-          searchResultsServer += '<div class=\'video\'>';
-          searchResultsServer += '<img src=\'' + highestRatioArr[d].thumbnail_link + '\' alt=\'Video Thumbnail\'>';
-          searchResultsServer += '<div class=\'videoContent\'>';
-          searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
-          searchResultsServer += '<p class=\'videoTitle\'>' + highestRatioArr[d].title + '</p>';
-          searchResultsServer += '<p class=\'videoInfo\'>' + highestRatioArr[d].channel_title + ' / ' + highestRatioArr[d].trending_date + ' / ' + highestRatioArr[d].likes + ' / ' + highestRatioArr[d].dislikes + '</p>';
-          searchResultsServer += '<button type=\"delete\" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button> \n';
-          searchResultsServer += '</form>';
-
-          searchResultsServer += '<button class="editBtn" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
-          searchResultsServer += '</div>'
-          searchResultsServer += '</div>\n';
+    if (flag) { //flag to search through arrTemp and find all videos with the same title, also meaning we have a new video title to use
+      for (let b = a + 1; b < arrTemp.length; b++) {
+        if (titleTemp == arrTemp[b].title) { //if same title, add it to arrTemp2, else do nothing
+          arrTemp2.push(arrTemp[b]);
         }
       }
+      //now go through the compiled arrTemp2 with all video instances of same title and find highest ratio
+      for (let c = 0; c < arrTemp2.length; c++) {
+        if (ratio < (arrTemp2[c].likes / arrTemp2[c].dislikes)) {
+          ratio = (arrTemp2[c].likes / arrTemp2[c].dislikes);//new highest ratio
+          ind = c;
+        }
+      }
+      highestRatioArr.push(arrTemp2[ind]); //store the highest ratio vid
+    }
+  } //finding the top ratiod videos of each title with the keyword
 
-      res.redirect('back');
-    });
+  //sort the videos by ratio (like/dislike) descending order
+  highestRatioArr.sort((a, b) => {
+    return (b.likes / b.dislikes) - (a.likes / a.dislikes);
+  });
 
+  for (let d = 0; d < 10; d++) { //now display the top 10 videos 
+    if (highestRatioArr[d] != undefined) {
+      searchResultsServer += '<div class=\'video\'>';
+      searchResultsServer += '<img src=\'' + highestRatioArr[d].thumbnail_link + '\' alt=\'Video Thumbnail\'>';
+      searchResultsServer += '<div class=\'videoContent\'>';
+      searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
+      searchResultsServer += '<p class=\'videoTitle\'>' + highestRatioArr[d].title + '</p>';
+      searchResultsServer += '<p class=\'videoInfo\'>' + highestRatioArr[d].channel_title + ' / ' + highestRatioArr[d].trending_date + ' / ' + highestRatioArr[d].likes + ' / ' + highestRatioArr[d].dislikes + '</p>';
+      searchResultsServer += '<button type=\"delete\" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button> \n';
+      searchResultsServer += '</form>';
+
+      searchResultsServer += '<button class="editBtn" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
+      searchResultsServer += '</div>'
+      searchResultsServer += '</div>\n';
+      i+=1;
+    }
+  }
+  res.redirect('back');
 });
 
 app.post('/editVideo', (req, res) => {
