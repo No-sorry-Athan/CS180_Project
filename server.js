@@ -25,6 +25,7 @@ app.set('view engine', 'handlebars');
 var options = { dotfiles: 'ignore', etag: false, extensions: ['htm', 'html'], index: false };
 
 var searchResultsServer = "";
+var reliableSearchResultsServer = "";
 var csvCacheServer = [];
 var videoLink = "";
 var mostLiked;
@@ -68,7 +69,7 @@ app.get('/', (req, res) => {
 
 //making a new page for reliable videos
 app.get('/reliableVids', (req, res) => {
-  res.render('reliableVids', { searchResultsClient: searchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer) });
+  res.render('reliableVids', { searchResultsClient: reliableSearchResultsServer, csvCacheClient: JSON.stringify(csvCacheServer) });
 });
 
 app.get('/public/:file', (req, res) => {
@@ -162,7 +163,7 @@ app.post('/searchReliable', (req, res) => {
   var query = req.body.YTSearchBar;
   var i = 0;
   var titleTemp = ""; //used to look for entries with the same title 
-  searchResultsServer = "";
+  reliableSearchResultsServer = "";
   csvCacheServer = [];
   arrTemp = []; //main arr holding all entries
   var arrTemp2 = []; //sub arr holding entries of the same title to find one with best ratio
@@ -230,18 +231,18 @@ app.post('/searchReliable', (req, res) => {
 
   for (let d = 0; d < 10; d++) { //now display the top 10 videos 
     if (highestRatioArr[d] != undefined) {
-      searchResultsServer += '<div class=\'video\'>';
-      searchResultsServer += '<img src=\'' + highestRatioArr[d].thumbnail_link + '\' alt=\'Video Thumbnail\'>';
-      searchResultsServer += '<div class=\'videoContent\'>';
-      searchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
-      searchResultsServer += '<p class=\'videoTitle\'>' + highestRatioArr[d].title + '</p>';
-      searchResultsServer += '<p class=\'videoInfo\'>' + highestRatioArr[d].channel_title + ' / ' + highestRatioArr[d].trending_date + ' / ' + highestRatioArr[d].likes + ' / ' + highestRatioArr[d].dislikes + '</p>';
-      searchResultsServer += '<button type=\"delete\" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button> \n';
-      searchResultsServer += '</form>';
+      reliableSearchResultsServer += '<div class=\'video\'>';
+      reliableSearchResultsServer += '<img src=\'' + highestRatioArr[d].thumbnail_link + '\' alt=\'Video Thumbnail\'>';
+      reliableSearchResultsServer += '<div class=\'videoContent\'>';
+      reliableSearchResultsServer += '<form action=\"/deleteVid\" method=\"POST\">';
+      reliableSearchResultsServer += '<p class=\'videoTitle\'>' + highestRatioArr[d].title + '</p>';
+      reliableSearchResultsServer += '<p class=\'videoInfo\'>' + highestRatioArr[d].channel_title + ' / ' + highestRatioArr[d].trending_date + ' / ' + highestRatioArr[d].likes + ' / ' + highestRatioArr[d].dislikes + '</p>';
+      reliableSearchResultsServer += '<button type=\"delete\" class=\"deleteBtn' + '\"name=\"Delete' + '\" value=\"' + i + '\"> Delete</button> \n';
+      reliableSearchResultsServer += '</form>';
 
-      searchResultsServer += '<button class="editBtn" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
-      searchResultsServer += '</div>'
-      searchResultsServer += '</div>\n';
+      reliableSearchResultsServer += '<button class="editBtn" name="' + i + '" value="Edit" onClick="updateVideoEditor(' + i + ')">Edit</button>';
+      reliableSearchResultsServer += '</div>'
+      reliableSearchResultsServer += '</div>\n';
       i+=1;
     }
   }
