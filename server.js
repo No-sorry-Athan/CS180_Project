@@ -179,7 +179,6 @@ app.post('/searchReliable', (req, res) => {
 
   for(let iterator = 1; iterator < csvArr.length; iterator++) {
     if (toLower(csvArr[iterator].title).includes(toLower(query))){
-      csvCacheServer.push(csvArr[iterator]);
       arrTemp.push(csvArr[iterator]); //store quiried rows into array
     }
   }
@@ -230,6 +229,7 @@ app.post('/searchReliable', (req, res) => {
 
   for (let d = 0; d < 10; d++) { //now display the top 10 videos 
     if (highestRatioArr[d] != undefined) {
+      csvCacheServer.push(highestRatioArr[d]);
       searchResultsServer += '<div class=\'video\'>';
       searchResultsServer += '<img src=\'' + highestRatioArr[d].thumbnail_link + '\' alt=\'Video Thumbnail\'>';
       searchResultsServer += '<div class=\'videoContent\'>';
